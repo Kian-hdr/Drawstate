@@ -553,7 +553,7 @@ private struct BatterySettingsCard: View {
                 ) { editing in
                     if !editing { applySelectedLimit() }
                 }
-                .disabled(isApplyingLimit)
+                .allowsHitTesting(!isApplyingLimit)
                 .accessibilityLabel("Charge limit")
                 .accessibilityValue("\(Int(selectedLimit)) percent")
                 HStack {
