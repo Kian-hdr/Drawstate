@@ -1,0 +1,48 @@
+name: Bug report
+description: Report a reproducible Drawstate problem
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Drawstate version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+    validations:
+      required: true
+  - type: dropdown
+    id: power
+    attributes:
+      label: Power state
+      options:
+        - On battery
+        - Charging
+        - Fully charged and connected
+        - Both or unknown
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed credentials and unrelated personal information from this report.
+          required: true

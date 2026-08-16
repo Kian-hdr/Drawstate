@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Build universal release app
+        run: ./Scripts/package-app.sh release
+      - name: Validate bundle
+        run: |
+          codesign --verify --deep --strict --verbose=2 build/Drawstate.app
+          plutil -lint build/Drawstate.app/Contents/Info.plist
+          plutil -lint build/Drawstate.app/Contents/Resources/PrivacyInfo.xcprivacy
+          file build/Drawstate.app/Contents/MacOS/Drawstate | grep -q 'universal binary'
