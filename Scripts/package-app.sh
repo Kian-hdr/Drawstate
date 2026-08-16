@@ -34,7 +34,9 @@ if xcrun actool "$project_dir/Resources/Drawstate.icon" \
   --minimum-deployment-target 14.0 \
   --app-icon Drawstate \
   --output-partial-info-plist "$icon_build_dir/IconInfo.plist" \
-  --warnings --notices >/dev/null 2>&1; then
+  --warnings --notices >/dev/null 2>&1 \
+  && [[ -f "$icon_build_dir/Drawstate.icns" ]] \
+  && [[ -f "$icon_build_dir/Assets.car" ]]; then
   cp "$icon_build_dir/Drawstate.icns" "$app_dir/Contents/Resources/Drawstate.icns"
   cp "$icon_build_dir/Assets.car" "$app_dir/Contents/Resources/Assets.car"
   echo "Compiled adaptive Icon Composer artwork."
