@@ -11,7 +11,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.kiankonradtajbakhsh.drawstate</string>
     <key>CFBundleIconFile</key>
-    <string>AppIcon</string>
+    <string>Drawstate</string>
+    <key>CFBundleIconName</key>
+    <string>Drawstate</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

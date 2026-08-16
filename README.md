@@ -16,6 +16,7 @@ Created by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENS
 - Adapter input, Mac load, and battery charge or supply flow
 - Battery health, voltage, current, cycles, and charger capability
 - Native Command-drag menu-bar positioning
+- Native adaptive app icon with Default, Dark, and Monochrome appearances
 - Integrated settings with individually configurable features
 - Optional start at login through the standard macOS login-item service
 - No account, cloud service, administrator access, analytics, or network connection
@@ -86,6 +87,7 @@ All processing stays on the Mac. Drawstate does not collect or transmit data. Re
 - [Features](docs/FEATURES.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Building and releasing](docs/RELEASING.md)
+- [App icon design](docs/APP-ICON.md)
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

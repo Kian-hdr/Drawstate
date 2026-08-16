@@ -22,7 +22,26 @@ mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/Drawstate" "$app_dir/Contents/MacOS/Drawstate"
 cp "$project_dir/Resources/ChargeLimitBridge.swift" "$app_dir/Contents/Resources/ChargeLimitBridge.swift"
 cp "$project_dir/Resources/Info.plist" "$app_dir/Contents/Info.plist"
-cp "$project_dir/Resources/AppIcon.icns" "$app_dir/Contents/Resources/AppIcon.icns"
+
+# Xcode 26's Icon Composer format supplies native Default, Dark, and Mono
+# appearances. Older Xcode versions cannot compile a .icon package, so public
+# source builds retain the transparent-corner ICNS artwork as a safe fallback.
+icon_build_dir=$(mktemp -d "$project_dir/build/icon-assets.XXXXXX")
+trap 'rm -rf "$icon_build_dir"' EXIT
+if xcrun actool "$project_dir/Resources/Drawstate.icon" \
+  --compile "$icon_build_dir" \
+  --platform macosx \
+  --minimum-deployment-target 14.0 \
+  --app-icon Drawstate \
+  --output-partial-info-plist "$icon_build_dir/IconInfo.plist" \
+  --warnings --notices >/dev/null 2>&1; then
+  cp "$icon_build_dir/Drawstate.icns" "$app_dir/Contents/Resources/Drawstate.icns"
+  cp "$icon_build_dir/Assets.car" "$app_dir/Contents/Resources/Assets.car"
+  echo "Compiled adaptive Icon Composer artwork."
+else
+  cp "$project_dir/Resources/AppIcon.icns" "$app_dir/Contents/Resources/Drawstate.icns"
+  echo "Icon Composer compilation unavailable; using the compatible ICNS fallback."
+fi
 cp "$project_dir/Resources/PrivacyInfo.xcprivacy" "$app_dir/Contents/Resources/PrivacyInfo.xcprivacy"
 cp "$project_dir/LICENSE" "$app_dir/Contents/Resources/LICENSE.txt"
 xattr -cr "$app_dir"
