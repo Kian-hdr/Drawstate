@@ -37,11 +37,11 @@ enum LaunchAtLoginManager {
 
     private static func migrateLegacyAgentIfNeeded() throws {
         guard FileManager.default.fileExists(atPath: legacyAgentURL.path) else { return }
-        _ = runLaunchctl(["bootout", "gui/\(getuid())/\(legacyLabel)"])
-        try FileManager.default.removeItem(at: legacyAgentURL)
         if SMAppService.mainApp.status == .notRegistered {
             try SMAppService.mainApp.register()
         }
+        _ = runLaunchctl(["bootout", "gui/\(getuid())/\(legacyLabel)"])
+        try FileManager.default.removeItem(at: legacyAgentURL)
     }
 
     @discardableResult
