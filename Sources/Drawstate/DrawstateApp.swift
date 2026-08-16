@@ -568,11 +568,6 @@ private struct BatterySettingsCard: View {
                 ChargeLimitScale(limit: monitor.batterySettings.chargeLimitPercent)
             }
 
-            if isApplyingLimit {
-                Text("Applying…")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
         }
         .padding(12)
         .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
