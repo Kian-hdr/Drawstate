@@ -1,0 +1,17 @@
+cask "drawstate" do
+  version "VERSION"
+  sha256 "SHA256"
+
+  url "https://github.com/Kian-hdr/Drawstate/releases/download/v#{version}/Drawstate-#{version}.zip"
+  name "Drawstate"
+  desc "Live Mac power and battery telemetry in the menu bar"
+  homepage "https://github.com/Kian-hdr/Drawstate"
+
+  depends_on macos: ">= :sonoma"
+
+  app "Drawstate.app"
+
+  zap trash: [
+    "~/Library/Preferences/com.kiankonradtajbakhsh.drawstate.plist",
+  ]
+end
