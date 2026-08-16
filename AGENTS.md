@@ -39,6 +39,8 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 | `Sources/DrawstateCore/Telemetry.swift` | IOPowerSources and AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
 | `Sources/DrawstateCore/PowerEstimator.swift` | Derived power flow, runtime estimation, formatting, and smoothing logic. |
 | `Tests/DrawstateCoreTests/DrawstateCoreTests.swift` | Parsing, signs, calculations, formatting, missing-data, and flow-direction tests. |
+| `Resources/Drawstate.icon` | Production Icon Composer package with native Default, Dark, Mono, clear, and tinted rendering. |
+| `Scripts/generate-app-icons.swift` | Deterministically regenerates the transparent foreground, light/dark reference art, and legacy ICNS source sizes. |
 | `Scripts/package-app.sh` | Release build and `.app` bundle packaging. |
 
 The package has a reusable `DrawstateCore` library, a `Drawstate` executable, and `DrawstateCoreTests`. Keep telemetry and calculation logic in the core target when practical so it remains unit-testable.
@@ -123,6 +125,8 @@ codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 ```
 
 The packaging script creates `build/Drawstate.app`. Install it as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
+
+The production app icon is `Resources/Drawstate.icon`. Build it in Apple's Icon Composer from the true-alpha foreground in `Resources/AppIconAppearances`. Do not replace it with a flattened image or bake the macOS mask, shadows, lighting, or checkerboard transparency into the artwork. `package-app.sh` compiles the adaptive package with Xcode 26 when available and falls back to `Resources/AppIcon.icns` on older toolchains. After icon changes, verify Default, Dark, and Mono previews and inspect at least one small icon size.
 
 After successfully installing and verifying the app, move the packaged `build/Drawstate.app` to Trash so Finder and Spotlight do not show duplicate copies. Do not remove an existing application copy until the intended source and target paths have been resolved explicitly.
 
