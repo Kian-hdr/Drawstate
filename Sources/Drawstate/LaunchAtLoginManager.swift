@@ -2,12 +2,14 @@ import Foundation
 import ServiceManagement
 
 enum LaunchAtLoginManager {
+#if !APP_STORE
     private static let legacyLabel = "com.kiankonradtajbakhsh.drawstate.launcher"
 
     private static var legacyAgentURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/LaunchAgents/\(legacyLabel).plist")
     }
+#endif
 
     static var isEnabled: Bool {
         SMAppService.mainApp.status == .enabled
@@ -18,7 +20,9 @@ enum LaunchAtLoginManager {
     }
 
     static func ensureCurrentConfiguration() throws {
+#if !APP_STORE
         try migrateLegacyAgentIfNeeded()
+#endif
     }
 
     static func setEnabled(_ enabled: Bool) throws {
@@ -35,6 +39,7 @@ enum LaunchAtLoginManager {
         SMAppService.openSystemSettingsLoginItems()
     }
 
+#if !APP_STORE
     private static func migrateLegacyAgentIfNeeded() throws {
         guard FileManager.default.fileExists(atPath: legacyAgentURL.path) else { return }
         if SMAppService.mainApp.status == .notRegistered {
@@ -59,4 +64,5 @@ enum LaunchAtLoginManager {
             return -1
         }
     }
+#endif
 }

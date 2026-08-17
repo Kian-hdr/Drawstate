@@ -6,34 +6,30 @@ Drawstate is maintained as two separately packaged editions from one source tree
 | --- | --- | --- |
 | Distribution | GitHub Releases and Homebrew | Mac App Store after approval |
 | App Sandbox | No | Yes |
-| Battery percentage, voltage, current, and time estimates | Yes | Yes, through public IOPowerSources APIs |
+| Battery percentage, voltage, current, and time estimates | Yes | Yes, hardware-dependent |
 | Charger capability | Yes | Yes, when IOPowerSources reports it |
-| Detailed AppleSmartBattery and power-controller telemetry | Yes, hardware-dependent | No |
+| Detailed AppleSmartBattery and power-controller telemetry | Yes, hardware-dependent | Yes, read-only and hardware-dependent |
 | Current configured charge limit | Experimental system telemetry | Unavailable through a documented public API |
 | Charge-limit writing | Optional experimental control | Completely excluded at compile time |
 | Swift charge-limit bridge | Bundled | Not compiled or bundled |
 | Battery Settings shortcut | Yes | Yes |
+| Compatible USB HID/UPS power-bank telemetry | Yes | Yes, through public APIs and the USB sandbox entitlement |
 
 ## Compile-time boundary
 
-The Mac App Store build passes `-DAPP_STORE` to Swift. Code under `#if !APP_STORE` is not compiled into that executable. This boundary excludes:
+The Mac App Store build passes `-DAPP_STORE` to Swift. Both editions use the same read-only IOKit telemetry so Drawstate's core live-wattage experience remains intact. Code under `#if !APP_STORE` excludes:
 
 - `ChargeLimitController` and all experimental control UI
 - `ChargeLimitBridge.swift`
-- AppleSmartBattery IORegistry reads and `PowerTelemetryData`
 - `pmset` process execution and charge-limit parsing at runtime
+- Direct's legacy LaunchAgent migration and `launchctl` process execution
 
-The App Store app includes a secondary Drawstate Direct card. Its single action opens the official [README installation section](https://github.com/Kian-hdr/Drawstate#install). It does not download, install, execute, or replace software.
+The App Store app includes a compact Drawstate Direct row inside Battery Settings. It opens an in-app explanation of the GitHub Releases and Homebrew options. The Homebrew command can be copied to the clipboard, and the page's single external action opens the official [README installation section](https://github.com/Kian-hdr/Drawstate#install). It does not download, install, execute, or replace software.
 
-## Store telemetry limitations
+## Store telemetry boundary
 
-The sandboxed edition intentionally uses documented IOPowerSources data only. Depending on the Mac, it can show battery percentage, voltage, signed current, derived battery power, system time until full or empty, charger rated watts, and capacity-based health.
+The sandboxed edition uses IOPowerSources plus read-only IOKit registry properties from the system AppleSmartBattery service. It does not open an IOKit user client or write battery state. Some service names and properties are not separately documented as a stable high-level API, so App Review may require this implementation to change.
 
-The following Direct measurements are unavailable in the Store edition because their sources are undocumented or incompatible with the public-API boundary:
+The configured charge-limit value, charge-limit writing, and High Power mode parsing remain Direct-only. Other measurements remain hardware-dependent and display `—` when unavailable. Drawstate never presents a missing measurement as zero.
 
-- true instantaneous adapter contribution and estimated wall input
-- power-controller system load while connected to an adapter
-- cycle count and raw-capacity fallback runtime
-- the configured charge-limit value and High Power mode readout
-
-Unavailable values remain `—`. Drawstate never presents a missing measurement as zero.
+Power-bank support has the same implementation in both editions. It accepts standard external UPS descriptions from IOPowerSources and uses public IOKit USB descriptor properties only to enrich identity. It does not parse arbitrary vendor data, open USB interfaces, send device commands, or infer a power bank from a charger. Future documented vendor integrations must conform to the isolated provider protocols.

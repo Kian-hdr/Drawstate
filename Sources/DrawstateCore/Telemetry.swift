@@ -1,7 +1,5 @@
 import Foundation
-#if !APP_STORE
 import IOKit
-#endif
 import IOKit.ps
 
 public enum TelemetryValue {
@@ -17,7 +15,6 @@ public enum TelemetryValue {
         return result.isFinite && result > 0 ? result : nil
     }
 
-#if !APP_STORE
     public static func telemetryWatts(_ dictionary: [String: Any], key: String) -> Double? {
         guard let raw = signedInt64(dictionary[key]) else { return nil }
         // INT64_MIN and common firmware sentinels must never appear as measurements.
@@ -35,7 +32,6 @@ public enum TelemetryValue {
         let efficiencyLoss = telemetryWatts(dictionary, key: "AdapterEfficiencyLoss") ?? 0
         return adapterOutput + max(0, efficiencyLoss)
     }
-#endif
 
     /// Reads the documented IOPowerSources voltage key, expressed in millivolts.
     public static func publicVoltageVolts(_ dictionary: [String: Any]) -> Double? {
@@ -76,9 +72,7 @@ public struct PowerTelemetryReader {
     public func read() -> PowerSample {
         var sample = PowerSample()
         applyPowerSource(to: &sample)
-#if !APP_STORE
         applySmartBattery(to: &sample)
-#endif
         sample.state = state(for: sample)
         return sample
     }
@@ -122,7 +116,6 @@ public struct PowerTelemetryReader {
         }
     }
 
-#if !APP_STORE
     private func applySmartBattery(to sample: inout PowerSample) {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
         guard service != 0 else { return }
@@ -181,7 +174,6 @@ public struct PowerTelemetryReader {
 
         sample.adapterRatedWatts = adapterWatts(in: properties) ?? sample.adapterRatedWatts
     }
-#endif
 
     private func state(for sample: PowerSample) -> PowerState {
         if sample.externalConnected {
@@ -200,7 +192,6 @@ public struct PowerTelemetryReader {
         return minutes
     }
 
-#if !APP_STORE
     private func bool(_ value: Any?) -> Bool? {
         (value as? NSNumber)?.boolValue
     }
@@ -225,5 +216,4 @@ public struct PowerTelemetryReader {
         }()
         return candidates.compactMap(TelemetryValue.positiveDouble).first
     }
-#endif
 }
