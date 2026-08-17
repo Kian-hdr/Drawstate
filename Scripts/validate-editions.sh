@@ -32,7 +32,12 @@ done
 [[ ! -e "$store_app/Contents/Resources/ChargeLimitBridge.swift" ]]
 
 store_entitlements=$(codesign -d --entitlements - "$store_app" 2>&1)
+grep -q 'com.apple.application-identifier' <<<"$store_entitlements"
+grep -q 'HZWY8HT54D.com.kiankonradtajbakhsh.drawstate.appstore' <<<"$store_entitlements"
+grep -q 'com.apple.developer.team-identifier' <<<"$store_entitlements"
+grep -q 'HZWY8HT54D' <<<"$store_entitlements"
 grep -q 'com.apple.security.app-sandbox' <<<"$store_entitlements"
+grep -q 'com.apple.security.device.usb' <<<"$store_entitlements"
 grep -q '\[Bool\] true' <<<"$store_entitlements"
 
 store_strings=$(strings "$store_app/Contents/MacOS/Drawstate")
@@ -40,19 +45,25 @@ for forbidden in \
   ChargeLimitController \
   ChargeLimitBridge.swift \
   WFSmartChargeClientHelper \
-  PowerTelemetryData \
-  AppleSmartBattery \
-  AdapterEfficiencyLoss \
   SystemBatterySettingsParser \
   chargeSocLimit \
-  /usr/bin/pmset; do
+  /usr/bin/pmset \
+  /bin/launchctl \
+  LaunchAgents \
+  bootout \
+  '_OBJC_CLASS_$_NSTask'; do
   if grep -Fq "$forbidden" <<<"$store_strings"; then
     echo "App Store binary contains forbidden Direct-only reference: $forbidden" >&2
     exit 1
   fi
 done
 
-grep -Fq 'Learn about Drawstate Direct' <<<"$store_strings"
+grep -Fq 'AppleSmartBattery' <<<"$store_strings"
+grep -Fq 'PowerTelemetryData' <<<"$store_strings"
+grep -Fq 'Charge-limit controls' <<<"$store_strings"
+grep -Fq 'Open installation guide' <<<"$store_strings"
 grep -Fq 'Open Battery Settings' <<<"$store_strings"
+grep -Fq 'IOUSBHostDevice' <<<"$store_strings"
+grep -Fq 'Est. at Mac target' <<<"$store_strings"
 
 echo "Direct and App Store editions validated at $validation_root"

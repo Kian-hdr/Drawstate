@@ -6,6 +6,7 @@ struct DrawstatePanel: View {
     @ObservedObject var monitor: PowerMonitor
     @ObservedObject var layout: DrawstatePopoverLayout
     @State private var showingSettings = false
+    @State private var showingDirectInfo = false
     @AppStorage("showPowerDirectionSign") private var showPowerDirectionSign = true
     @AppStorage("showFlowDiagram") private var showFlowDiagram = true
     @AppStorage("showMacDrawCard") private var showMacDrawCard = true
@@ -33,6 +34,20 @@ struct DrawstatePanel: View {
                     }
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
+            } else if showingDirectInfo {
+#if APP_STORE
+                DrawstateDirectInfoView(
+                    width: layout.width,
+                    height: layout.settingsHeight
+                ) {
+                    withAnimation(.easeInOut(duration: 0.16)) {
+                        showingDirectInfo = false
+                    }
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+#else
+                EmptyView()
+#endif
             } else {
                 dashboard
                     .transition(.move(edge: .leading).combined(with: .opacity))
@@ -68,9 +83,20 @@ struct DrawstatePanel: View {
                 }
             }
 
+            if let powerBank = monitor.primaryPowerBank {
+                PowerBankCard(
+                    sample: powerBank,
+                    compatibleSourceCount: monitor.powerBanks.count
+                )
+            }
+
             if showBatterySettingsCard {
 #if APP_STORE
-                BatterySettingsCard(monitor: monitor)
+                BatterySettingsCard(monitor: monitor) {
+                    withAnimation(.easeInOut(duration: 0.16)) {
+                        showingDirectInfo = true
+                    }
+                }
 #else
                 BatterySettingsCard(
                     monitor: monitor,
@@ -78,10 +104,6 @@ struct DrawstatePanel: View {
                 )
 #endif
             }
-
-#if APP_STORE
-            DrawstateDirectCard()
-#endif
 
             if showElectricalDetails {
                 Divider()
@@ -174,9 +196,88 @@ struct DrawstatePanel: View {
     }
 }
 
+private struct PowerBankCard: View {
+    let sample: PowerBankSample
+    let compatibleSourceCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(alignment: .firstTextBaseline) {
+                Label("Power Bank", systemImage: "battery.75percent")
+                    .font(.headline)
+                Spacer()
+                if let percent = PowerFormatting.roundedPercent(sample.remainingPercent) {
+                    Text("\(percent)%")
+                        .font(.headline.monospacedDigit())
+                }
+            }
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(sample.name).fontWeight(.semibold)
+                    if let model = sample.model, model != sample.name {
+                        Text(model).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Text(sample.state.rawValue)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(stateColor)
+            }
+
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 5) {
+                if let watts = sample.outputWatts {
+                    row("Output", PowerFormatting.watts(watts))
+                }
+                if let voltage = sample.voltageVolts {
+                    row("Voltage", String(format: "%.2f V", voltage))
+                }
+                if let current = sample.currentAmps {
+                    row("Current", String(format: "%+.2f A", current))
+                }
+                if let runtime = sample.timeToEmpty {
+                    row(
+                        runtime.source == .calculated ? "Est. until empty" : "Until empty",
+                        PowerFormatting.runtime(runtime)
+                    )
+                }
+                if let percent = PowerFormatting.roundedPercent(sample.estimatedPercentAtMacTarget) {
+                    row("Est. at Mac target", "\(percent)%")
+                }
+            }
+            .font(.caption)
+
+            if compatibleSourceCount > 1 {
+                Text("Showing the active source from \(compatibleSourceCount) compatible power sources.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func row(_ title: String, _ value: String) -> some View {
+        GridRow {
+            Text(title).foregroundStyle(.secondary)
+            Text(value).monospacedDigit()
+        }
+    }
+
+    private var stateColor: Color {
+        switch sample.state {
+        case .charging: return .green
+        case .discharging: return .orange
+        case .full: return .mint
+        case .idle: return .blue
+        }
+    }
+}
+
 #if APP_STORE
 private struct BatterySettingsCard: View {
     @ObservedObject var monitor: PowerMonitor
+    let showDirectInfo: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 11) {
@@ -191,32 +292,32 @@ private struct BatterySettingsCard: View {
                     .fontWeight(.medium)
             }
 
-            HStack {
-                Text("Charge Limit")
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(limitText)
-                    .fontWeight(.semibold)
-                    .monospacedDigit()
-            }
-            ChargeLimitScale(limit: monitor.batterySettings.chargeLimitPercent)
-
-            if monitor.batterySettings.chargeLimitPercent == nil {
-                Text("macOS does not expose the configured charge limit through a public API. View or change it in Battery Settings.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
             Button("Open Battery Settings") {
                 DrawstateLinks.openBatterySettings()
             }
+
+            Divider()
+
+            Button(action: showDirectInfo) {
+                HStack(spacing: 9) {
+                    Image(systemName: "bolt.shield")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Charge-limit controls")
+                        Text("Available in Drawstate Direct")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
         .padding(12)
         .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var limitText: String {
-        monitor.batterySettings.chargeLimitPercent.map { "\($0)%" } ?? "—"
     }
 
     private var energyModeIcon: String {
@@ -226,20 +327,130 @@ private struct BatterySettingsCard: View {
     }
 }
 
-private struct DrawstateDirectCard: View {
+private struct DrawstateDirectInfoView: View {
+    let width: CGFloat
+    let height: CGFloat
+    let onDone: () -> Void
+    @State private var isHoveringHomebrew = false
+    @State private var copiedHomebrewCommand = false
+
+    private let homebrewCommand = "brew install --cask kian-hdr/tap/drawstate"
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Drawstate Direct", systemImage: "bolt.shield")
-                .font(.headline)
-            Text("Experimental charge-limit controls are available in the separately installed Drawstate Direct edition.")
-                .font(.caption)
+        VStack(spacing: 0) {
+            ZStack {
+                Text("Drawstate Direct")
+                    .font(.headline)
+                HStack {
+                    Button(action: onDone) {
+                        Label("Overview", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 44)
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    Label("Charge-limit controls", systemImage: "bolt.shield")
+                        .font(.title3.bold())
+                    Text("Drawstate Direct includes optional experimental controls for changing the Mac charge limit. The Mac App Store edition remains sandboxed and only opens Apple's Battery Settings.")
+                        .foregroundStyle(.secondary)
+
+                    installationRow(
+                        title: "GitHub Releases",
+                        detail: "Download the signed Drawstate Direct release from the official repository.",
+                        icon: "shippingbox"
+                    )
+                    Button(action: copyHomebrewCommand) {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "terminal")
+                                .frame(width: 20)
+                                .foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("Homebrew").fontWeight(.semibold)
+                                    Spacer()
+                                    Label(
+                                        copiedHomebrewCommand ? "Copied" : "Copy",
+                                        systemImage: copiedHomebrewCommand ? "checkmark" : "doc.on.doc"
+                                    )
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(copiedHomebrewCommand ? .green : .secondary)
+                                }
+                                Text(homebrewCommand)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                    .textSelection(.enabled)
+                                Text("Click to copy, then paste it into Terminal.")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            isHoveringHomebrew
+                                ? Color.accentColor.opacity(0.12)
+                                : Color.secondary.opacity(0.08),
+                            in: RoundedRectangle(cornerRadius: 12)
+                        )
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(
+                                    isHoveringHomebrew ? Color.accentColor.opacity(0.45) : .clear,
+                                    lineWidth: 1
+                                )
+                        }
+                        .contentShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { isHoveringHomebrew = $0 }
+                    .help("Copy the Homebrew installation command")
+
+                    Button("Open installation guide…") {
+                        NSWorkspace.shared.open(DrawstateLinks.directInstallationURL)
+                    }
+
+                    Text("This opens documentation in your browser. Drawstate will not download software, run Homebrew, or replace this app.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(16)
+            }
+        }
+        .frame(width: width, height: height)
+    }
+
+    private func installationRow(title: String, detail: String, icon: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .frame(width: 20)
                 .foregroundStyle(.secondary)
-            Button("Learn about Drawstate Direct…") {
-                NSWorkspace.shared.open(DrawstateLinks.directInstallationURL)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).fontWeight(.semibold)
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
             }
         }
         .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func copyHomebrewCommand() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(homebrewCommand, forType: .string)
+        copiedHomebrewCommand = true
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            copiedHomebrewCommand = false
+        }
     }
 }
 #else

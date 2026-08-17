@@ -15,6 +15,7 @@ Created and primarily developed by **Kian Konrad Tajbakhsh** and released under 
 - Time until full or empty with smoothed fallback estimates
 - Adapter input, Mac load, and battery charge or supply flow
 - Battery health, voltage, current, cycles, and charger capability
+- Conditional telemetry for compatible USB HID/UPS power banks, including remaining charge, output, and estimates
 - Native Command-drag menu-bar positioning
 - Native adaptive app icon with Default, Dark, and Monochrome appearances
 - Integrated settings with individually configurable features
@@ -78,11 +79,17 @@ Launch Drawstate and click its battery item in the menu bar. The overview panel 
 
 Positive wattage means the Mac or battery is receiving adapter power. Negative wattage means the battery is supplying power. Readings are system telemetry estimates, not calibrated electrical-meter measurements.
 
+### Compatible power banks
+
+When a connected USB-C power bank publishes standard macOS UPS telemetry, Drawstate adds a compact **Power Bank** card near the bottom of the overview. It can show the reported device name, remaining percentage, charge state, voltage, current, output wattage, time until empty, and an estimated remaining percentage when the Mac reaches its charge target. Calculated values are labeled **Est.**
+
+Most power banks expose power delivery but do not expose battery telemetry to macOS. Drawstate does not guess in that case: the existing interface remains unchanged, and no placeholder or menu-bar item appears. Compatible HID/UPS data and USB identity are read locally through public IOPowerSources and IOKit USB interfaces.
+
 ### Charge limits and editions
 
 Drawstate Direct displays and can optionally change the system charge limit through an experimental on-device control under **Settings > Experimental**. It uses an undocumented macOS Smart Charge service, verifies every write, and may stop working after an OS update.
 
-The Mac App Store edition is sandboxed and contains no undocumented charge-limit writer, Swift bridge, or experimental control. macOS does not provide a documented public API for reading the configured charge-limit value, so this edition displays `—` for that field and provides **Open Battery Settings**. Its Drawstate Direct information card opens this installation section only. It never downloads software, runs Homebrew, or replaces the current app.
+The Mac App Store edition is sandboxed and preserves Drawstate's read-only live wattage and power-flow telemetry, but contains no undocumented charge-limit writer, Swift bridge, or experimental control. Its compact Battery Settings card shows the current energy mode and provides **Open Battery Settings**. A small **Charge-limit controls** row opens an in-app explanation of the GitHub Releases and Homebrew installation options for Drawstate Direct. The Homebrew row copies the displayed command to the clipboard when clicked, and one link opens this installation section. It never downloads software, runs Homebrew, or replaces the current app.
 
 See [Drawstate editions](docs/EDITIONS.md) for the complete comparison.
 
@@ -98,6 +105,7 @@ All processing stays on the Mac. Drawstate does not collect or transmit data. Re
 - [Drawstate editions](docs/EDITIONS.md)
 - [Mac App Store release procedure](docs/APP-STORE-RELEASE.md)
 - [App Review notes](docs/APP-REVIEW-NOTES.md)
+- [Mac App Store metadata](docs/APP-STORE-METADATA.md)
 - [App icon design](docs/APP-ICON.md)
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)

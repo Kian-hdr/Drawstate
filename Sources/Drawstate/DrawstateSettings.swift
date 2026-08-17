@@ -104,7 +104,11 @@ struct DrawstateSettings: View {
             }
 
             Section("Details Panel") {
+#if APP_STORE
+                Toggle("Energy mode and Drawstate Direct info", isOn: $showBatterySettingsCard)
+#else
                 Toggle("Energy mode and charge limit", isOn: $showBatterySettingsCard)
+#endif
                 Toggle("Power-flow diagram", isOn: $showFlowDiagram)
                 Toggle("Mac draw", isOn: $showMacDrawCard)
                 Toggle("Estimated wall draw", isOn: $showWallDrawCard)

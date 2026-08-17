@@ -7,4 +7,6 @@ Before opening an issue:
 3. Note whether the problem occurs on battery, while charging, or both.
 4. Check whether the affected measurement displays `—`, which means the hardware does not expose it.
 
-Use the bug-report issue template for reproducible problems. Include the Drawstate version, macOS version, Mac model, power source, expected result, and actual result. Do not upload full system logs unless a maintainer requests a specific excerpt.
+Use the [Drawstate issue tracker](https://github.com/Kian-hdr/Drawstate/issues) and its bug-report template for reproducible problems. This is the official public support channel maintained by Drawstate's creator, Kian Konrad Tajbakhsh.
+
+Include the Drawstate version, macOS version, Mac model, power source, expected result, and actual result. Do not upload full system logs unless a maintainer requests a specific excerpt. Never include passwords, authentication codes, or other sensitive information.

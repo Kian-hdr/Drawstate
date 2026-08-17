@@ -17,6 +17,9 @@ Every menu element can be changed independently in Settings.
 - Adapter capability
 - Charging, paused, full, battery, and unavailable states
 - Current macOS energy mode and charge-limit reading
+- A conditional Power Bank card for compatible USB HID/UPS devices that report usable telemetry
+
+The Power Bank card can show the reported name/model, remaining percentage, charging state, voltage, current, output wattage, time until empty, and the estimated power-bank percentage at the Mac's charge target. Calculated values are explicitly labeled as estimates. Unsupported and disconnected devices produce no card, placeholder, or menu-bar content.
 
 Unavailable hardware telemetry is shown as `—`, never as a fabricated zero.
 

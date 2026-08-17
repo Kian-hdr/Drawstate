@@ -46,6 +46,8 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 | `Sources/DrawstateCore/PowerSample.swift` | Typed raw and derived power sample model. Keep unavailable measurements distinct from numeric zero. |
 | `Sources/DrawstateCore/Telemetry.swift` | Public IOPowerSources parsing plus Direct-only AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
 | `Sources/DrawstateCore/PowerEstimator.swift` | Derived power flow, runtime estimation, formatting, and smoothing logic. |
+| `Sources/DrawstateCore/PowerBankTelemetry.swift` | Typed external power-source model, UPS parsing, visibility, selection, and estimate logic. |
+| `Sources/DrawstateCore/PowerBankProviders.swift` | Public IOPowerSources/HID-UPS provider, USB identity enrichment, and future vendor protocol boundary. |
 | `Tests/DrawstateCoreTests/DrawstateCoreTests.swift` | Parsing, signs, calculations, formatting, missing-data, and flow-direction tests. |
 | `Resources/Drawstate.icon` | Production Icon Composer package with native Default, Dark, Mono, clear, and tinted rendering. |
 | `Scripts/generate-app-icons.swift` | Deterministically regenerates the transparent foreground, light/dark reference art, and legacy ICNS source sizes. |
@@ -86,6 +88,8 @@ Keep raw telemetry, derived flows, availability, timestamps, and source labels s
 - Prefer the system runtime estimate when valid. Use a clearly marked approximation only after sufficient stable samples.
 
 Never convert missing data into `0 W`, `0 V`, `0 A`, or `0 min`.
+
+External power-bank telemetry must remain separate from the Mac's `PowerSample`. Accept only a documented external UPS source with usable measurements. A plain USB-C connection or charger identity is never proof of a battery. The Power Bank card is conditional and must leave the overview and menu bar unchanged when the source is unsupported, disconnected, or stale. All calculated power-bank values must be labeled as estimates. Future vendor support belongs behind `PowerBankTelemetryProvider` or `PowerBankIdentityProvider` and must use a documented, read-only interface.
 
 ## Preferences and defaults
 
@@ -140,7 +144,7 @@ codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 
 The Direct packaging path creates `build/Drawstate.app`. The Store path creates `build/Drawstate-AppStore.app`. Install the Direct app as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
 
-The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no AppleSmartBattery private telemetry, `PowerTelemetryData`, charge-limit writer, or `pmset` execution. The Store Battery Settings card keeps the public telemetry, unavailable charge-limit display, and System Settings shortcut. Its Drawstate Direct card may open the official README installation section, but must not download, install, execute, or replace software.
+The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no charge-limit writer, bridge, or `pmset` execution. The Store Battery Settings card keeps read-only telemetry and the System Settings shortcut. Its Drawstate Direct card may open the official README installation section, but must not download, install, execute, or replace software. Power-bank support must use documented IOPowerSources/USB interfaces and retain the `com.apple.security.device.usb` sandbox entitlement.
 
 Do not push, publish, create an App Store record, upload, or submit for review without explicit user approval immediately before that external action.
 

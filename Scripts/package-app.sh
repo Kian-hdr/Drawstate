@@ -106,6 +106,9 @@ file "$app_dir/Contents/MacOS/Drawstate"
 
 rm -rf "$final_app_dir"
 ditto --norsrc --noextattr "$app_dir" "$final_app_dir"
+# File Provider can attach Finder metadata immediately after the destination copy even when
+# `ditto --noextattr` is used. Clear it once more before the final strict signature check.
+xattr -cr "$final_app_dir"
 codesign --verify --deep --strict --verbose=2 "$final_app_dir"
 
 echo "$final_app_dir"
