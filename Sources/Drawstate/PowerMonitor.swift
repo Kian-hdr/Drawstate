@@ -176,13 +176,20 @@ final class PowerMonitor: ObservableObject {
 
 private enum SystemBatterySettingsReader {
     static func read() -> SystemBatterySettingsSnapshot {
+#if APP_STORE
+        return SystemBatterySettingsSnapshot(
+            energyMode: ProcessInfo.processInfo.isLowPowerModeEnabled ? .lowPower : .automatic
+        )
+#else
         SystemBatterySettingsParser.snapshot(
             activePowerSettings: runPMSet(arguments: ["-g"]),
             batteryLimitSettings: runPMSet(arguments: ["-g", "battlimit"]),
             lowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled
         )
+#endif
     }
 
+#if !APP_STORE
     private static func runPMSet(arguments: [String]) -> String {
         let process = Process()
         let pipe = Pipe()
@@ -202,4 +209,5 @@ private enum SystemBatterySettingsReader {
             return ""
         }
     }
+#endif
 }

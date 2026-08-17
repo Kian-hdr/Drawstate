@@ -15,6 +15,7 @@ Drawstate is a native, local-only macOS menu bar utility that reports live power
 - Offer opt-in startup through the standard macOS login-item service.
 - Degrade missing hardware telemetry to `—` or `Calculating…`, never a fabricated zero.
 - Preserve Kian Konrad Tajbakhsh as creator and primary developer, credit Leon Fischer-Appelt for providing the original idea that inspired Drawstate, and preserve the MIT open-source license. Do not imply a code contribution without documentation.
+- Preserve two separately packaged editions. Drawstate Direct is the GitHub/Homebrew edition with experimental charge-limit controls. The Mac App Store edition uses `APP_STORE`, App Sandbox, public telemetry only, and no charge-limit writer or bridge.
 
 The readings are estimates from macOS and battery telemetry, not calibrated wall-meter measurements.
 
@@ -24,6 +25,7 @@ The readings are estimates from macOS and battery telemetry, not calibrated wall
 - Installed application: `/Applications/Drawstate.app`
 - Login item: `SMAppService.mainApp`, managed by macOS under Login Items
 - Bundle identifier: `com.kiankonradtajbakhsh.drawstate`
+- Mac App Store bundle identifier: `com.kiankonradtajbakhsh.drawstate.appstore`
 
 Do not reintroduce former product names or legacy identifiers in source, documentation, build products, processes, or login items.
 
@@ -42,12 +44,15 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 | `Sources/Drawstate/LaunchAtLoginManager.swift` | Standard login-item registration, approval handling, and legacy LaunchAgent migration. |
 | `Sources/Drawstate/PowerMonitor.swift` | One-second telemetry sampling, smoothing, runtime-state handling, wake/source-change resets, and published UI state. |
 | `Sources/DrawstateCore/PowerSample.swift` | Typed raw and derived power sample model. Keep unavailable measurements distinct from numeric zero. |
-| `Sources/DrawstateCore/Telemetry.swift` | IOPowerSources and AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
+| `Sources/DrawstateCore/Telemetry.swift` | Public IOPowerSources parsing plus Direct-only AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
 | `Sources/DrawstateCore/PowerEstimator.swift` | Derived power flow, runtime estimation, formatting, and smoothing logic. |
 | `Tests/DrawstateCoreTests/DrawstateCoreTests.swift` | Parsing, signs, calculations, formatting, missing-data, and flow-direction tests. |
 | `Resources/Drawstate.icon` | Production Icon Composer package with native Default, Dark, Mono, clear, and tinted rendering. |
 | `Scripts/generate-app-icons.swift` | Deterministically regenerates the transparent foreground, light/dark reference art, and legacy ICNS source sizes. |
 | `Scripts/package-app.sh` | Release build and `.app` bundle packaging. |
+| `Scripts/validate-editions.sh` | Tests, packages, and audits both edition binaries. |
+| `docs/EDITIONS.md` | Edition feature and telemetry contract. |
+| `docs/APP-STORE-RELEASE.md` | Store signing, packaging, upload, and release procedure. |
 
 The package has a reusable `DrawstateCore` library, a `Drawstate` executable, and `DrawstateCoreTests`. Keep telemetry and calculation logic in the core target when practical so it remains unit-testable.
 
@@ -126,11 +131,18 @@ Run commands from `/Users/kian/Documents/Codex/Drawstate`.
 
 ```bash
 swift test
-./Scripts/package-app.sh release
+swift test -Xswiftc -DAPP_STORE
+./Scripts/validate-editions.sh
+./Scripts/package-app.sh release direct
+./Scripts/package-app.sh release app-store
 codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 ```
 
-The packaging script creates `build/Drawstate.app`. Install it as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
+The Direct packaging path creates `build/Drawstate.app`. The Store path creates `build/Drawstate-AppStore.app`. Install the Direct app as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
+
+The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no AppleSmartBattery private telemetry, `PowerTelemetryData`, charge-limit writer, or `pmset` execution. The Store Battery Settings card keeps the public telemetry, unavailable charge-limit display, and System Settings shortcut. Its Drawstate Direct card may open the official README installation section, but must not download, install, execute, or replace software.
+
+Do not push, publish, create an App Store record, upload, or submit for review without explicit user approval immediately before that external action.
 
 The production app icon is `Resources/Drawstate.icon`. Build it in Apple's Icon Composer from the true-alpha foreground in `Resources/AppIconAppearances`. Do not replace it with a flattened image or bake the macOS mask, shadows, lighting, or checkerboard transparency into the artwork. `package-app.sh` compiles the adaptive package with Xcode 26 when available and falls back to `Resources/AppIcon.icns` on older toolchains. After icon changes, verify Default, Dark, and Mono previews and inspect at least one small icon size.
 

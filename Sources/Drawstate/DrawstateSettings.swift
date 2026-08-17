@@ -25,7 +25,9 @@ struct DrawstateSettings: View {
     @AppStorage("showBatteryCard") private var showBatteryCard = true
     @AppStorage("showElectricalDetails") private var showElectricalDetails = true
     @AppStorage("showBatterySettingsCard") private var showBatterySettingsCard = true
+#if !APP_STORE
     @AppStorage("experimentalChargeLimitControl") private var experimentalChargeLimitControl = false
+#endif
 
     @State private var launchAtLogin = LaunchAtLoginManager.isEnabled
     @State private var startupError: String?
@@ -137,16 +139,18 @@ struct DrawstateSettings: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Experimental") {
+#if !APP_STORE
+            Section("Drawstate Direct") {
                 Toggle("Allow charge-limit changes", isOn: $experimentalChargeLimitControl)
                 Text("This optional control uses an undocumented macOS Smart Charge service. It may stop working after a macOS update. Drawstate always verifies a requested change and remains usable if macOS rejects it.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+#endif
 
             Section("About") {
+                LabeledContent("Edition", value: editionName)
                 LabeledContent("Creator", value: DrawstateCredits.creator)
-                LabeledContent("Primary developer", value: DrawstateCredits.creator)
                 LabeledContent("License", value: "MIT License")
                 Button("Show Welcome Window…") {
                     NotificationCenter.default.post(name: .drawstateShowWelcome, object: nil)
@@ -163,5 +167,13 @@ struct DrawstateSettings: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private var editionName: String {
+#if APP_STORE
+        "Mac App Store"
+#else
+        "Drawstate Direct"
+#endif
     }
 }

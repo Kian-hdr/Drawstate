@@ -16,7 +16,9 @@ struct DrawstatePanel: View {
     @AppStorage("showBatteryCard") private var showBatteryCard = true
     @AppStorage("showElectricalDetails") private var showElectricalDetails = true
     @AppStorage("showBatterySettingsCard") private var showBatterySettingsCard = true
+#if !APP_STORE
     @AppStorage("experimentalChargeLimitControl") private var experimentalChargeLimitControl = false
+#endif
 
     var body: some View {
         Group {
@@ -67,11 +69,19 @@ struct DrawstatePanel: View {
             }
 
             if showBatterySettingsCard {
+#if APP_STORE
+                BatterySettingsCard(monitor: monitor)
+#else
                 BatterySettingsCard(
                     monitor: monitor,
                     allowsChargeControl: experimentalChargeLimitControl
                 )
+#endif
             }
+
+#if APP_STORE
+            DrawstateDirectCard()
+#endif
 
             if showElectricalDetails {
                 Divider()
@@ -164,6 +174,75 @@ struct DrawstatePanel: View {
     }
 }
 
+#if APP_STORE
+private struct BatterySettingsCard: View {
+    @ObservedObject var monitor: PowerMonitor
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 11) {
+            Label("Battery Settings", systemImage: "slider.horizontal.3")
+                .font(.headline)
+
+            HStack {
+                Label("Energy Mode", systemImage: energyModeIcon)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(monitor.batterySettings.energyMode?.rawValue ?? "—")
+                    .fontWeight(.medium)
+            }
+
+            HStack {
+                Text("Charge Limit")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(limitText)
+                    .fontWeight(.semibold)
+                    .monospacedDigit()
+            }
+            ChargeLimitScale(limit: monitor.batterySettings.chargeLimitPercent)
+
+            if monitor.batterySettings.chargeLimitPercent == nil {
+                Text("macOS does not expose the configured charge limit through a public API. View or change it in Battery Settings.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Button("Open Battery Settings") {
+                DrawstateLinks.openBatterySettings()
+            }
+        }
+        .padding(12)
+        .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var limitText: String {
+        monitor.batterySettings.chargeLimitPercent.map { "\($0)%" } ?? "—"
+    }
+
+    private var energyModeIcon: String {
+        monitor.batterySettings.energyMode == .lowPower
+            ? "leaf.fill"
+            : "gauge.with.dots.needle.50percent"
+    }
+}
+
+private struct DrawstateDirectCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Drawstate Direct", systemImage: "bolt.shield")
+                .font(.headline)
+            Text("Experimental charge-limit controls are available in the separately installed Drawstate Direct edition.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Button("Learn about Drawstate Direct…") {
+                NSWorkspace.shared.open(DrawstateLinks.directInstallationURL)
+            }
+        }
+        .padding(12)
+        .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+#else
 private struct BatterySettingsCard: View {
     @ObservedObject var monitor: PowerMonitor
     let allowsChargeControl: Bool
@@ -283,6 +362,7 @@ private struct BatterySettingsCard: View {
         NSWorkspace.shared.open(url)
     }
 }
+#endif
 
 private struct ChargeLimitScale: View {
     let limit: Int?
@@ -374,5 +454,18 @@ private struct MetricCard: View {
         .frame(maxWidth: .infinity, minHeight: 54, alignment: .topLeading)
         .padding(10)
         .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private enum DrawstateLinks {
+    static let directInstallationURL = URL(
+        string: "https://github.com/Kian-hdr/Drawstate#install"
+    )!
+
+    static func openBatterySettings() {
+        guard let url = URL(
+            string: "x-apple.systempreferences:com.apple.Battery-Settings.extension"
+        ) else { return }
+        NSWorkspace.shared.open(url)
     }
 }
