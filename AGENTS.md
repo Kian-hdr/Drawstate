@@ -14,7 +14,7 @@ Drawstate is a native, local-only macOS menu bar utility that reports live power
 - Open a live details popover when its menu-bar control is clicked.
 - Offer opt-in startup through the standard macOS login-item service.
 - Degrade missing hardware telemetry to `—` or `Calculating…`, never a fabricated zero.
-- Preserve the creator credit, Kian Konrad Tajbakhsh, and the MIT open-source license.
+- Preserve Kian Konrad Tajbakhsh as creator and primary developer, credit Leon Fischer-Appelt for providing the original idea that inspired Drawstate, and preserve the MIT open-source license. Do not imply a code contribution without documentation.
 
 The readings are estimates from macOS and battery telemetry, not calibrated wall-meter measurements.
 
@@ -31,7 +31,13 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 
 | File | Responsibility |
 | --- | --- |
-| `Sources/Drawstate/DrawstateApp.swift` | App lifecycle, menu-bar carrier, popover, detailed UI, preferences UI, menu icon rendering, and welcome-window presentation. |
+| `Sources/Drawstate/DrawstateMain.swift` | SwiftUI app entry point and login-item configuration bootstrap. |
+| `Sources/Drawstate/DrawstateAppDelegate.swift` | Native status-item lifecycle, popover coordination, menu content, and welcome-window presentation. |
+| `Sources/Drawstate/DrawstatePanel.swift` | Live telemetry dashboard, power-flow cards, and charge-limit controls. |
+| `Sources/Drawstate/DrawstateSettings.swift` | Embedded and standalone settings UI, About information, and acknowledgments. |
+| `Sources/Drawstate/DrawstateMenuIconFactory.swift` | Level-aware percentage-inside battery icon rendering and appearance cache. |
+| `Sources/Drawstate/DrawstatePopoverLayout.swift` | Screen-aware popover sizing. |
+| `Sources/Drawstate/DrawstateCredits.swift` | Canonical in-app creator and acknowledgment wording. |
 | `Sources/Drawstate/DrawstateWelcomeView.swift` | First-run welcome experience and creator/open-source information. |
 | `Sources/Drawstate/LaunchAtLoginManager.swift` | Standard login-item registration, approval handling, and legacy LaunchAgent migration. |
 | `Sources/Drawstate/PowerMonitor.swift` | One-second telemetry sampling, smoothing, runtime-state handling, wake/source-change resets, and published UI state. |

@@ -6,7 +6,7 @@
 
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
 
-Created by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
+Created and primarily developed by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
 
 ## Highlights
 
@@ -93,6 +93,7 @@ All processing stays on the Mac. Drawstate does not collect or transmit data. Re
 - [Security policy](SECURITY.md)
 - [Uninstall](UNINSTALL.md)
 - [Changelog](CHANGELOG.md)
+- [Acknowledgments](ACKNOWLEDGMENTS.md)
 
 ## Development
 
@@ -103,6 +104,10 @@ codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 ```
 
 AI coding tools should read [AGENTS.md](AGENTS.md) before modifying the project. It documents the status-item lifecycle, telemetry semantics, preferences, installation paths, and required validation.
+
+## Acknowledgments
+
+**Leon Fischer-Appelt** provided the original idea that inspired the development of Drawstate. **Kian Konrad Tajbakhsh** is the creator and primary developer.
 
 ## License
 
