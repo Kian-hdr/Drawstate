@@ -4,16 +4,16 @@
 <dict>
     <key>CFBundleDisplayName</key>
     <string>Drawstate</string>
-    <key>CFBundleGetInfoString</key>
-    <string>Drawstate 1.0.1, created by Kian Konrad Tajbakhsh. Open source under the MIT License.</string>
     <key>CFBundleExecutable</key>
     <string>Drawstate</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.kiankonradtajbakhsh.drawstate</string>
+    <key>CFBundleGetInfoString</key>
+    <string>Drawstate 1.0.1 Mac App Store edition, created by Kian Konrad Tajbakhsh. Open source under the MIT License.</string>
     <key>CFBundleIconFile</key>
     <string>Drawstate</string>
     <key>CFBundleIconName</key>
     <string>Drawstate</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.kiankonradtajbakhsh.drawstate.appstore</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -21,9 +21,13 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-	<string>1.0.1</string>
+    <string>1.0.1</string>
     <key>CFBundleVersion</key>
     <string>2</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>LSUIElement</key>

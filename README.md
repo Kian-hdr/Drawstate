@@ -6,7 +6,7 @@
 
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
 
-Created by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
+Created and primarily developed by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
 
 ## Highlights
 
@@ -15,6 +15,7 @@ Created by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENS
 - Time until full or empty with smoothed fallback estimates
 - Adapter input, Mac load, and battery charge or supply flow
 - Battery health, voltage, current, cycles, and charger capability
+- Conditional telemetry for compatible USB HID/UPS power banks, including remaining charge, output, and estimates
 - Native Command-drag menu-bar positioning
 - Native adaptive app icon with Default, Dark, and Monochrome appearances
 - Integrated settings with individually configurable features
@@ -32,15 +33,17 @@ Some measurements depend on what a particular Mac and charger expose. Missing re
 
 ## Install
 
-### GitHub download
+The downloadable edition is **Drawstate Direct**. It preserves every Drawstate feature, including the optional experimental charge-limit controls. A sandboxed **Mac App Store edition** is prepared separately and will be linked here only after it has passed App Review.
+
+### Drawstate Direct from GitHub Releases
 
 Download the latest notarized `Drawstate-VERSION.zip` from [GitHub Releases](https://github.com/Kian-hdr/Drawstate/releases), unzip it, and move `Drawstate.app` to Applications.
 
 Public binaries are published only after Developer ID signing and Apple notarization. If the Releases page has no binary yet, build from source instead of downloading an unsigned copy from another source.
 
-### Homebrew
+### Drawstate Direct with Homebrew
 
-After the first signed release and tap publication:
+Use the official [Drawstate Homebrew tap](https://github.com/Kian-hdr/homebrew-drawstate):
 
 ```sh
 brew tap Kian-hdr/drawstate
@@ -53,6 +56,8 @@ Upgrade or uninstall with:
 brew upgrade --cask drawstate
 brew uninstall --cask drawstate
 ```
+
+The Homebrew cask installs the same signed and notarized Drawstate Direct application as GitHub Releases.
 
 ### Build from source
 
@@ -74,9 +79,19 @@ Launch Drawstate and click its battery item in the menu bar. The overview panel 
 
 Positive wattage means the Mac or battery is receiving adapter power. Negative wattage means the battery is supplying power. Readings are system telemetry estimates, not calibrated electrical-meter measurements.
 
-### Charge limits
+### Compatible power banks
 
-Drawstate always displays the system charge limit when macOS exposes it. Changing that limit is an optional experimental feature under **Settings > Experimental**. It uses an undocumented on-device macOS Smart Charge service, verifies every write, and may stop working after an OS update. It is not suitable for a Mac App Store build.
+When a connected USB-C power bank publishes standard macOS UPS telemetry, Drawstate adds a compact **Power Bank** card near the bottom of the overview. It can show the reported device name, remaining percentage, charge state, voltage, current, output wattage, time until empty, and an estimated remaining percentage when the Mac reaches its charge target. Calculated values are labeled **Est.**
+
+Most power banks expose power delivery but do not expose battery telemetry to macOS. Drawstate does not guess in that case: the existing interface remains unchanged, and no placeholder or menu-bar item appears. Compatible HID/UPS data and USB identity are read locally through public IOPowerSources and IOKit USB interfaces.
+
+### Charge limits and editions
+
+Drawstate Direct displays and can optionally change the system charge limit through an experimental on-device control under **Settings > Experimental**. It uses an undocumented macOS Smart Charge service, verifies every write, and may stop working after an OS update.
+
+The Mac App Store edition is sandboxed and preserves Drawstate's read-only live wattage and power-flow telemetry, but contains no undocumented charge-limit writer, Swift bridge, or experimental control. Its compact Battery Settings card shows the current energy mode and provides **Open Battery Settings**. A small **Charge-limit controls** row opens an in-app explanation of the GitHub Releases and Homebrew installation options for Drawstate Direct. The Homebrew row copies the displayed command to the clipboard when clicked, and one link opens this installation section. It never downloads software, runs Homebrew, or replaces the current app.
+
+See [Drawstate editions](docs/EDITIONS.md) for the complete comparison.
 
 ## Privacy
 
@@ -87,22 +102,32 @@ All processing stays on the Mac. Drawstate does not collect or transmit data. Re
 - [Features](docs/FEATURES.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Building and releasing](docs/RELEASING.md)
+- [Drawstate editions](docs/EDITIONS.md)
+- [Mac App Store release procedure](docs/APP-STORE-RELEASE.md)
+- [App Review notes](docs/APP-REVIEW-NOTES.md)
+- [Mac App Store metadata](docs/APP-STORE-METADATA.md)
 - [App icon design](docs/APP-ICON.md)
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)
 - [Uninstall](UNINSTALL.md)
 - [Changelog](CHANGELOG.md)
+- [Acknowledgments](ACKNOWLEDGMENTS.md)
 
 ## Development
 
 ```sh
 swift test
-./Scripts/package-app.sh release
+swift test -Xswiftc -DAPP_STORE
+./Scripts/validate-editions.sh
 codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 ```
 
 AI coding tools should read [AGENTS.md](AGENTS.md) before modifying the project. It documents the status-item lifecycle, telemetry semantics, preferences, installation paths, and required validation.
+
+## Acknowledgments
+
+**Leon Fischer-Appelt** provided the original idea that inspired the development of Drawstate. **Kian Konrad Tajbakhsh** is the creator and primary developer.
 
 ## License
 

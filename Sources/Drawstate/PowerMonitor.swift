@@ -10,14 +10,20 @@ final class PowerMonitor: ObservableObject {
     @Published private(set) var displayWatts: Double?
     @Published private(set) var runtime: RuntimeEstimate?
     @Published private(set) var batterySettings = SystemBatterySettingsSnapshot()
+    @Published private(set) var powerBanks: [PowerBankSample] = []
 
     private let reader = PowerTelemetryReader()
+    private let powerBankReader = PowerBankTelemetryReader()
     private var wattSmoother = RollingMedian(capacity: 5)
     private var runtimeSmoother = RollingMedian(capacity: 7)
+    private var powerBankWattSmoother = RollingMedian(capacity: 5)
+    private var powerBankRuntimeSmoother = RollingMedian(capacity: 7)
+    private var powerBankRuntimeEstimator = PowerBankRuntimeEstimator()
     private var estimator = RuntimeEstimator()
     private var timer: Timer?
     private var batterySettingsTimer: Timer?
     private var previousExternalState: Bool?
+    private var previousPowerBankID: String?
     private var powerSourceRunLoopSource: CFRunLoopSource?
     private var batterySettingsRefreshInFlight = false
 
@@ -104,6 +110,10 @@ final class PowerMonitor: ObservableObject {
         runtime?.source.rawValue ?? "Waiting for stable readings"
     }
 
+    var primaryPowerBank: PowerBankSample? {
+        PowerBankParser.preferred(powerBanks)
+    }
+
     func refresh() {
         let newSample = reader.read()
         if let previousExternalState, previousExternalState != newSample.externalConnected {
@@ -127,6 +137,8 @@ final class PowerMonitor: ObservableObject {
         } else {
             runtime = nil
         }
+
+        updatePowerBanks(for: newSample, macRuntime: runtime, smoothing: useSmoothing)
         sample = newSample
     }
 
@@ -154,8 +166,61 @@ final class PowerMonitor: ObservableObject {
     private func resetAndRefresh() {
         wattSmoother.reset()
         runtimeSmoother.reset()
+        powerBankWattSmoother.reset()
+        powerBankRuntimeSmoother.reset()
+        powerBankRuntimeEstimator.reset()
+        previousPowerBankID = nil
         estimator.reset()
         refresh()
+    }
+
+    private func updatePowerBanks(
+        for macSample: PowerSample,
+        macRuntime: RuntimeEstimate?,
+        smoothing: Bool
+    ) {
+        var candidates = powerBankReader.read()
+        guard var primary = PowerBankParser.preferred(candidates) else {
+            if previousPowerBankID != nil {
+                powerBankWattSmoother.reset()
+                powerBankRuntimeSmoother.reset()
+                powerBankRuntimeEstimator.reset()
+            }
+            previousPowerBankID = nil
+            powerBanks = []
+            return
+        }
+
+        if previousPowerBankID != primary.id {
+            powerBankWattSmoother.reset()
+            powerBankRuntimeSmoother.reset()
+            powerBankRuntimeEstimator.reset()
+        }
+        previousPowerBankID = primary.id
+        if primary.timeToEmpty == nil {
+            primary.timeToEmpty = powerBankRuntimeEstimator.estimate(for: primary)
+        } else {
+            powerBankRuntimeEstimator.reset()
+        }
+        if smoothing {
+            primary.outputWatts = powerBankWattSmoother.add(primary.outputWatts)
+            if let rawRuntime = primary.timeToEmpty {
+                let seconds = powerBankRuntimeSmoother.add(rawRuntime.seconds) ?? rawRuntime.seconds
+                primary.timeToEmpty = RuntimeEstimate(seconds: seconds, source: rawRuntime.source)
+            }
+        }
+        primary.estimatedPercentAtMacTarget = macSample.externalConnected && macSample.isCharging
+            ? PowerBankEstimator.percentAtMacTarget(
+                currentPercent: primary.remainingPercent,
+                powerBankRuntime: primary.timeToEmpty,
+                macRuntime: macRuntime
+            )
+            : nil
+
+        if let index = candidates.firstIndex(where: { $0.id == primary.id }) {
+            candidates[index] = primary
+        }
+        powerBanks = candidates
     }
 
     private func installPowerSourceNotifications() {
@@ -176,13 +241,20 @@ final class PowerMonitor: ObservableObject {
 
 private enum SystemBatterySettingsReader {
     static func read() -> SystemBatterySettingsSnapshot {
+#if APP_STORE
+        return SystemBatterySettingsSnapshot(
+            energyMode: ProcessInfo.processInfo.isLowPowerModeEnabled ? .lowPower : .automatic
+        )
+#else
         SystemBatterySettingsParser.snapshot(
             activePowerSettings: runPMSet(arguments: ["-g"]),
             batteryLimitSettings: runPMSet(arguments: ["-g", "battlimit"]),
             lowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled
         )
+#endif
     }
 
+#if !APP_STORE
     private static func runPMSet(arguments: [String]) -> String {
         let process = Process()
         let pipe = Pipe()
@@ -202,4 +274,5 @@ private enum SystemBatterySettingsReader {
             return ""
         }
     }
+#endif
 }

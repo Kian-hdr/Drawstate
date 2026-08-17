@@ -1,3 +1,4 @@
+#if !APP_STORE
 import Foundation
 import DrawstateCore
 
@@ -79,3 +80,4 @@ private enum ChargeLimitControlError: LocalizedError {
         }
     }
 }
+#endif

@@ -13,13 +13,5 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-      - name: Test
-        run: swift test
-      - name: Build universal release app
-        run: ./Scripts/package-app.sh release
-      - name: Validate bundle
-        run: |
-          codesign --verify --deep --strict --verbose=2 build/Drawstate.app
-          plutil -lint build/Drawstate.app/Contents/Info.plist
-          plutil -lint build/Drawstate.app/Contents/Resources/PrivacyInfo.xcprivacy
-          file build/Drawstate.app/Contents/MacOS/Drawstate | grep -q 'universal binary'
+      - name: Test and validate Direct and App Store editions
+        run: ./Scripts/validate-editions.sh
