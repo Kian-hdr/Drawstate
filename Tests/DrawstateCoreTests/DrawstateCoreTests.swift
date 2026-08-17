@@ -5,10 +5,36 @@ final class DrawstateCoreTests: XCTestCase {
     func testWrappedNegativeTelemetryValue() {
         let wrapped = NSNumber(value: UInt64.max - 6_999)
         XCTAssertEqual(TelemetryValue.signedInt64(wrapped), -7_000)
+#if !APP_STORE
         XCTAssertEqual(
             TelemetryValue.telemetryWatts(["BatteryPower": wrapped], key: "BatteryPower"),
             -7.0
         )
+#endif
+    }
+
+    func testPublicPowerSourceElectricalValues() {
+        let source: [String: Any] = [
+            "Voltage": NSNumber(value: 12_000),
+            "Current": NSNumber(value: -1_500)
+        ]
+        XCTAssertEqual(TelemetryValue.publicVoltageVolts(source), 12)
+        XCTAssertEqual(TelemetryValue.publicCurrentAmps(source), -1.5)
+        XCTAssertEqual(TelemetryValue.publicBatteryWatts(source), -18)
+    }
+
+    func testPublicBatteryHealthRejectsMismatchedCapacityScales() {
+        XCTAssertEqual(
+            TelemetryValue.publicHealthPercent([
+                "Max Capacity": NSNumber(value: 4_500),
+                "DesignCapacity": NSNumber(value: 5_000)
+            ]),
+            90
+        )
+        XCTAssertNil(TelemetryValue.publicHealthPercent([
+            "Max Capacity": NSNumber(value: 80),
+            "DesignCapacity": NSNumber(value: 5_000)
+        ]))
     }
 
     func testRuntimeFormatting() {
@@ -101,10 +127,13 @@ final class DrawstateCoreTests: XCTestCase {
     }
 
     func testInvalidSentinelIsUnavailable() {
+#if !APP_STORE
         XCTAssertNil(TelemetryValue.telemetryWatts(["x": NSNumber(value: Int64.min)], key: "x"))
+#endif
         XCTAssertEqual(PowerFormatting.watts(nil), "—")
     }
 
+#if !APP_STORE
     func testWallEstimateReconcilesAdapterOutputAndLoss() {
         let telemetry: [String: Any] = [
             "SystemPowerIn": NSNumber(value: 29_801),
@@ -113,7 +142,9 @@ final class DrawstateCoreTests: XCTestCase {
         ]
         XCTAssertEqual(TelemetryValue.estimatedWallWatts(telemetry)!, 30.536, accuracy: 0.001)
     }
+#endif
 
+#if !APP_STORE
     func testSystemBatterySettingsParsing() {
         let automatic = SystemBatterySettingsParser.snapshot(
             activePowerSettings: """
@@ -155,6 +186,7 @@ final class DrawstateCoreTests: XCTestCase {
         XCTAssertNil(SystemBatterySettingsParser.chargeLimit(in: "chargeSocLimitSoc = 82;"))
         XCTAssertNil(SystemBatterySettingsParser.chargeLimit(in: "chargeSocLimitSoc = 101;"))
     }
+#endif
 
     func testPopoverFitsCurrentAndCompactDisplays() {
         XCTAssertEqual(

@@ -1,5 +1,7 @@
 import Foundation
+#if !APP_STORE
 import IOKit
+#endif
 import IOKit.ps
 
 public enum TelemetryValue {
@@ -15,6 +17,7 @@ public enum TelemetryValue {
         return result.isFinite && result > 0 ? result : nil
     }
 
+#if !APP_STORE
     public static func telemetryWatts(_ dictionary: [String: Any], key: String) -> Double? {
         guard let raw = signedInt64(dictionary[key]) else { return nil }
         // INT64_MIN and common firmware sentinels must never appear as measurements.
@@ -32,6 +35,39 @@ public enum TelemetryValue {
         let efficiencyLoss = telemetryWatts(dictionary, key: "AdapterEfficiencyLoss") ?? 0
         return adapterOutput + max(0, efficiencyLoss)
     }
+#endif
+
+    /// Reads the documented IOPowerSources voltage key, expressed in millivolts.
+    public static func publicVoltageVolts(_ dictionary: [String: Any]) -> Double? {
+        positiveDouble(dictionary["Voltage"]).map { $0 / 1_000.0 }
+    }
+
+    /// Reads the documented signed IOPowerSources current key, expressed in milliamps.
+    public static func publicCurrentAmps(_ dictionary: [String: Any]) -> Double? {
+        guard let milliamps = signedInt64(dictionary["Current"]),
+              abs(Double(milliamps)) < 100_000 else {
+            return nil
+        }
+        return Double(milliamps) / 1_000.0
+    }
+
+    public static func publicBatteryWatts(_ dictionary: [String: Any]) -> Double? {
+        guard let voltage = publicVoltageVolts(dictionary),
+              let current = publicCurrentAmps(dictionary) else {
+            return nil
+        }
+        return voltage * current
+    }
+
+    public static func publicHealthPercent(_ dictionary: [String: Any]) -> Double? {
+        guard let maximum = positiveDouble(dictionary["Max Capacity"]),
+              let design = positiveDouble(dictionary["DesignCapacity"]) else {
+            return nil
+        }
+        let ratio = maximum / design
+        guard ratio >= 0.3, ratio <= 1.2 else { return nil }
+        return min(100, ratio * 100)
+    }
 }
 
 public struct PowerTelemetryReader {
@@ -40,7 +76,9 @@ public struct PowerTelemetryReader {
     public func read() -> PowerSample {
         var sample = PowerSample()
         applyPowerSource(to: &sample)
+#if !APP_STORE
         applySmartBattery(to: &sample)
+#endif
         sample.state = state(for: sample)
         return sample
     }
@@ -65,12 +103,26 @@ public struct PowerTelemetryReader {
                let maximum = TelemetryValue.positiveDouble(description["Max Capacity"]) {
                 sample.batteryPercent = min(100, max(0, current / maximum * 100))
             }
+            sample.voltageVolts = TelemetryValue.publicVoltageVolts(description)
+            sample.currentAmps = TelemetryValue.publicCurrentAmps(description)
+            sample.batteryFlowWatts = TelemetryValue.publicBatteryWatts(description)
+            sample.healthPercent = TelemetryValue.publicHealthPercent(description)
             sample.systemTimeToFullMinutes = validMinutes(description["Time to Full Charge"])
             sample.systemTimeToEmptyMinutes = validMinutes(description["Time to Empty"])
             break
         }
+
+        if sample.systemLoadWatts == nil, !sample.externalConnected,
+           let batteryFlow = sample.batteryFlowWatts, batteryFlow < 0 {
+            sample.systemLoadWatts = abs(batteryFlow)
+        }
+        if let adapter = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue()
+            as? [String: Any] {
+            sample.adapterRatedWatts = TelemetryValue.positiveDouble(adapter["Watts"])
+        }
     }
 
+#if !APP_STORE
     private func applySmartBattery(to sample: inout PowerSample) {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
         guard service != 0 else { return }
@@ -91,7 +143,7 @@ public struct PowerTelemetryReader {
 
         let voltageMV = TelemetryValue.positiveDouble(properties["Voltage"])
             ?? TelemetryValue.positiveDouble(properties["AppleRawBatteryVoltage"])
-        sample.voltageVolts = voltageMV.map { $0 / 1_000.0 }
+        sample.voltageVolts = voltageMV.map { $0 / 1_000.0 } ?? sample.voltageVolts
 
         if let currentMA = TelemetryValue.signedInt64(properties["InstantAmperage"])
             ?? TelemetryValue.signedInt64(properties["Amperage"]),
@@ -127,8 +179,9 @@ public struct PowerTelemetryReader {
             sample.systemLoadWatts = abs(batteryFlow)
         }
 
-        sample.adapterRatedWatts = adapterWatts(in: properties)
+        sample.adapterRatedWatts = adapterWatts(in: properties) ?? sample.adapterRatedWatts
     }
+#endif
 
     private func state(for sample: PowerSample) -> PowerState {
         if sample.externalConnected {
@@ -147,6 +200,7 @@ public struct PowerTelemetryReader {
         return minutes
     }
 
+#if !APP_STORE
     private func bool(_ value: Any?) -> Bool? {
         (value as? NSNumber)?.boolValue
     }
@@ -171,4 +225,5 @@ public struct PowerTelemetryReader {
         }()
         return candidates.compactMap(TelemetryValue.positiveDouble).first
     }
+#endif
 }

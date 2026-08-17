@@ -24,7 +24,8 @@ else
   )
 fi
 
-DRAWSTATE_OUTPUT_DIR="$release_dir" "$project_dir/Scripts/package-app.sh" release
+DRAWSTATE_VERSION="$version" DRAWSTATE_OUTPUT_DIR="$release_dir" \
+  "$project_dir/Scripts/package-app.sh" release direct
 rm -f "$archive"
 ditto -c -k --keepParent --norsrc "$app_dir" "$archive"
 
