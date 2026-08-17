@@ -1,7 +1,7 @@
 # Drawstate
 
 <p align="center">
-  <img src="Resources/AppIcon-master.png" width="160" alt="Drawstate app icon">
+  <img src="./Resources/AppIcon.iconset/icon_256x256.png?raw=1" width="160" height="160" alt="Drawstate app icon">
 </p>
 
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
