@@ -6,9 +6,19 @@ Public binaries must be Developer ID signed, hardened, timestamped, notarized, a
 
 - Apple Developer Program membership
 - A `Developer ID Application` certificate installed in the signing keychain
-- An Apple ID app-specific password for notarization
+- A validated `notarytool` Keychain profile, or Apple ID notarization credentials
 
 ## Local release
+
+```sh
+export DRAWSTATE_SIGNING_IDENTITY='Developer ID Application: Your Name (TEAMID)'
+export DRAWSTATE_NOTARY_PROFILE='DrawstateNotary'
+./Scripts/notarize-release.sh 1.0.0
+```
+
+Create the local Keychain profile once with `xcrun notarytool store-credentials DrawstateNotary`. The password remains in Keychain and is not passed through scripts or shell history.
+
+CI can instead provide credentials through environment variables:
 
 ```sh
 export DRAWSTATE_SIGNING_IDENTITY='Developer ID Application: Your Name (TEAMID)'

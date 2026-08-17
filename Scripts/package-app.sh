@@ -3,21 +3,27 @@ set -euo pipefail
 
 project_dir=${0:A:h:h}
 configuration=${1:-release}
-app_dir="$project_dir/build/Drawstate.app"
+output_dir=${DRAWSTATE_OUTPUT_DIR:-"$project_dir/build"}
+final_app_dir="$output_dir/Drawstate.app"
 signing_identity=${DRAWSTATE_SIGNING_IDENTITY:--}
+
+# Assemble and sign outside Documents. File Provider can immediately attach
+# Finder metadata to bundles in Documents, which Developer ID signing rejects.
+staging_root=$(mktemp -d /private/tmp/drawstate-package.XXXXXX)
+app_dir="$staging_root/Drawstate.app"
+trap 'rm -rf "$staging_root"' EXIT
 
 build_arguments=(--package-path "$project_dir" -c "$configuration")
 if [[ "$configuration" == "release" ]]; then
   build_arguments+=(--arch arm64 --arch x86_64)
 fi
 
-mkdir -p "$project_dir/build"
+mkdir -p "$project_dir/build" "$output_dir"
 touch "$project_dir/build/.metadata_never_index"
 
 swift build "${build_arguments[@]}"
 binary_dir=$(swift build "${build_arguments[@]}" --show-bin-path)
 
-rm -rf "$app_dir"
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/Drawstate" "$app_dir/Contents/MacOS/Drawstate"
 cp "$project_dir/Resources/ChargeLimitBridge.swift" "$app_dir/Contents/Resources/ChargeLimitBridge.swift"
@@ -27,7 +33,7 @@ cp "$project_dir/Resources/Info.plist" "$app_dir/Contents/Info.plist"
 # appearances. Older Xcode versions cannot compile a .icon package, so public
 # source builds retain the transparent-corner ICNS artwork as a safe fallback.
 icon_build_dir=$(mktemp -d "$project_dir/build/icon-assets.XXXXXX")
-trap 'rm -rf "$icon_build_dir"' EXIT
+trap 'rm -rf "$icon_build_dir" "$staging_root"' EXIT
 if xcrun actool "$project_dir/Resources/Drawstate.icon" \
   --compile "$icon_build_dir" \
   --platform macosx \
@@ -56,4 +62,8 @@ fi
 codesign --verify --deep --strict --verbose=2 "$app_dir"
 file "$app_dir/Contents/MacOS/Drawstate"
 
-echo "$app_dir"
+rm -rf "$final_app_dir"
+ditto --norsrc --noextattr "$app_dir" "$final_app_dir"
+codesign --verify --deep --strict --verbose=2 "$final_app_dir"
+
+echo "$final_app_dir"
