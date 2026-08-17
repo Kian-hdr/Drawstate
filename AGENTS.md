@@ -14,7 +14,8 @@ Drawstate is a native, local-only macOS menu bar utility that reports live power
 - Open a live details popover when its menu-bar control is clicked.
 - Offer opt-in startup through the standard macOS login-item service.
 - Degrade missing hardware telemetry to `—` or `Calculating…`, never a fabricated zero.
-- Preserve the creator credit, Kian Konrad Tajbakhsh, and the MIT open-source license.
+- Preserve Kian Konrad Tajbakhsh as creator and primary developer, credit Leon Fischer-Appelt for providing the original idea that inspired Drawstate, and preserve the MIT open-source license. Do not imply a code contribution without documentation.
+- Preserve two separately packaged editions. Drawstate Direct is the GitHub/Homebrew edition with experimental charge-limit controls. The Mac App Store edition uses `APP_STORE`, App Sandbox, public telemetry only, and no charge-limit writer or bridge.
 
 The readings are estimates from macOS and battery telemetry, not calibrated wall-meter measurements.
 
@@ -24,6 +25,7 @@ The readings are estimates from macOS and battery telemetry, not calibrated wall
 - Installed application: `/Applications/Drawstate.app`
 - Login item: `SMAppService.mainApp`, managed by macOS under Login Items
 - Bundle identifier: `com.kiankonradtajbakhsh.drawstate`
+- Mac App Store bundle identifier: `com.kiankonradtajbakhsh.drawstate.appstore`
 
 Do not reintroduce former product names or legacy identifiers in source, documentation, build products, processes, or login items.
 
@@ -31,17 +33,28 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 
 | File | Responsibility |
 | --- | --- |
-| `Sources/Drawstate/DrawstateApp.swift` | App lifecycle, menu-bar carrier, popover, detailed UI, preferences UI, menu icon rendering, and welcome-window presentation. |
+| `Sources/Drawstate/DrawstateMain.swift` | SwiftUI app entry point and login-item configuration bootstrap. |
+| `Sources/Drawstate/DrawstateAppDelegate.swift` | Native status-item lifecycle, popover coordination, menu content, and welcome-window presentation. |
+| `Sources/Drawstate/DrawstatePanel.swift` | Live telemetry dashboard, power-flow cards, and charge-limit controls. |
+| `Sources/Drawstate/DrawstateSettings.swift` | Embedded and standalone settings UI, About information, and acknowledgments. |
+| `Sources/Drawstate/DrawstateMenuIconFactory.swift` | Level-aware percentage-inside battery icon rendering and appearance cache. |
+| `Sources/Drawstate/DrawstatePopoverLayout.swift` | Screen-aware popover sizing. |
+| `Sources/Drawstate/DrawstateCredits.swift` | Canonical in-app creator and acknowledgment wording. |
 | `Sources/Drawstate/DrawstateWelcomeView.swift` | First-run welcome experience and creator/open-source information. |
 | `Sources/Drawstate/LaunchAtLoginManager.swift` | Standard login-item registration, approval handling, and legacy LaunchAgent migration. |
 | `Sources/Drawstate/PowerMonitor.swift` | One-second telemetry sampling, smoothing, runtime-state handling, wake/source-change resets, and published UI state. |
 | `Sources/DrawstateCore/PowerSample.swift` | Typed raw and derived power sample model. Keep unavailable measurements distinct from numeric zero. |
-| `Sources/DrawstateCore/Telemetry.swift` | IOPowerSources and AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
+| `Sources/DrawstateCore/Telemetry.swift` | Public IOPowerSources parsing plus Direct-only AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
 | `Sources/DrawstateCore/PowerEstimator.swift` | Derived power flow, runtime estimation, formatting, and smoothing logic. |
+| `Sources/DrawstateCore/PowerBankTelemetry.swift` | Typed external power-source model, UPS parsing, visibility, selection, and estimate logic. |
+| `Sources/DrawstateCore/PowerBankProviders.swift` | Public IOPowerSources/HID-UPS provider, USB identity enrichment, and future vendor protocol boundary. |
 | `Tests/DrawstateCoreTests/DrawstateCoreTests.swift` | Parsing, signs, calculations, formatting, missing-data, and flow-direction tests. |
 | `Resources/Drawstate.icon` | Production Icon Composer package with native Default, Dark, Mono, clear, and tinted rendering. |
 | `Scripts/generate-app-icons.swift` | Deterministically regenerates the transparent foreground, light/dark reference art, and legacy ICNS source sizes. |
 | `Scripts/package-app.sh` | Release build and `.app` bundle packaging. |
+| `Scripts/validate-editions.sh` | Tests, packages, and audits both edition binaries. |
+| `docs/EDITIONS.md` | Edition feature and telemetry contract. |
+| `docs/APP-STORE-RELEASE.md` | Store signing, packaging, upload, and release procedure. |
 
 The package has a reusable `DrawstateCore` library, a `Drawstate` executable, and `DrawstateCoreTests`. Keep telemetry and calculation logic in the core target when practical so it remains unit-testable.
 
@@ -75,6 +88,8 @@ Keep raw telemetry, derived flows, availability, timestamps, and source labels s
 - Prefer the system runtime estimate when valid. Use a clearly marked approximation only after sufficient stable samples.
 
 Never convert missing data into `0 W`, `0 V`, `0 A`, or `0 min`.
+
+External power-bank telemetry must remain separate from the Mac's `PowerSample`. Accept only a documented external UPS source with usable measurements. A plain USB-C connection or charger identity is never proof of a battery. The Power Bank card is conditional and must leave the overview and menu bar unchanged when the source is unsupported, disconnected, or stale. All calculated power-bank values must be labeled as estimates. Future vendor support belongs behind `PowerBankTelemetryProvider` or `PowerBankIdentityProvider` and must use a documented, read-only interface.
 
 ## Preferences and defaults
 
@@ -120,11 +135,18 @@ Run commands from `/Users/kian/Documents/Codex/Drawstate`.
 
 ```bash
 swift test
-./Scripts/package-app.sh release
+swift test -Xswiftc -DAPP_STORE
+./Scripts/validate-editions.sh
+./Scripts/package-app.sh release direct
+./Scripts/package-app.sh release app-store
 codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 ```
 
-The packaging script creates `build/Drawstate.app`. Install it as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
+The Direct packaging path creates `build/Drawstate.app`. The Store path creates `build/Drawstate-AppStore.app`. Install the Direct app as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
+
+The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no charge-limit writer, bridge, or `pmset` execution. The Store Battery Settings card keeps read-only telemetry and the System Settings shortcut. Its Drawstate Direct card may open the official README installation section, but must not download, install, execute, or replace software. Power-bank support must use documented IOPowerSources/USB interfaces and retain the `com.apple.security.device.usb` sandbox entitlement.
+
+Do not push, publish, create an App Store record, upload, or submit for review without explicit user approval immediately before that external action.
 
 The production app icon is `Resources/Drawstate.icon`. Build it in Apple's Icon Composer from the true-alpha foreground in `Resources/AppIconAppearances`. Do not replace it with a flattened image or bake the macOS mask, shadows, lighting, or checkerboard transparency into the artwork. `package-app.sh` compiles the adaptive package with Xcode 26 when available and falls back to `Resources/AppIcon.icns` on older toolchains. After icon changes, verify Default, Dark, and Mono previews and inspect at least one small icon size.
 

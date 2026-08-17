@@ -20,7 +20,7 @@ struct DrawstateWelcomeView: View {
                 .multilineTextAlignment(.center)
                 .padding(.top, 18)
 
-            Text("Created by Kian Konrad Tajbakhsh")
+            Text("Created by \(DrawstateCredits.creator)")
                 .font(.headline)
                 .foregroundStyle(.secondary)
                 .padding(.top, 7)

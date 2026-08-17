@@ -22,6 +22,7 @@ public struct SystemBatterySettingsSnapshot: Equatable, Sendable {
     }
 }
 
+#if !APP_STORE
 public enum SystemBatterySettingsParser {
     public static let allowedChargeLimits = [80, 85, 90, 95, 100]
 
@@ -81,3 +82,4 @@ public enum SystemBatterySettingsParser {
         return String(text[captureRange])
     }
 }
+#endif
