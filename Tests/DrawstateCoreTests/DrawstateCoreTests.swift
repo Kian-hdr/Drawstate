@@ -195,6 +195,48 @@ final class DrawstateCoreTests: XCTestCase {
         )
     }
 
+    func testPopoverWindowOriginKeepsVisibleScreenMargin() {
+        XCTAssertEqual(
+            PopoverGeometry.clampedWindowOrigin(
+                originX: 1_280,
+                originY: 120,
+                windowWidth: 370,
+                windowHeight: 640,
+                visibleMinX: 0,
+                visibleMinY: 0,
+                visibleMaxX: 1_512,
+                visibleMaxY: 949
+            ),
+            PopoverOrigin(x: 1_130, y: 120)
+        )
+        XCTAssertEqual(
+            PopoverGeometry.clampedWindowOrigin(
+                originX: -1_940,
+                originY: -20,
+                windowWidth: 370,
+                windowHeight: 640,
+                visibleMinX: -1_920,
+                visibleMinY: 0,
+                visibleMaxX: 0,
+                visibleMaxY: 1_080
+            ),
+            PopoverOrigin(x: -1_908, y: 12)
+        )
+        XCTAssertEqual(
+            PopoverGeometry.clampedWindowOrigin(
+                originX: 440,
+                originY: 900,
+                windowWidth: 370,
+                windowHeight: 200,
+                visibleMinX: 0,
+                visibleMinY: 0,
+                visibleMaxX: 1_512,
+                visibleMaxY: 949
+            ),
+            PopoverOrigin(x: 440, y: 900)
+        )
+    }
+
     func testUSBUPSPowerBankParsing() {
         let now = Date(timeIntervalSince1970: 10_000)
         let sample = PowerBankParser.powerSource([

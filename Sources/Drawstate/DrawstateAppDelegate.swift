@@ -60,11 +60,37 @@ final class DrawstateAppDelegate: NSObject, NSApplicationDelegate, NSWindowDeleg
         if popover.isShown {
             popover.performClose(sender)
         } else {
-            popoverLayout.update(for: sender.window?.screen ?? NSScreen.main)
+            let presentationScreen = sender.window?.screen ?? NSScreen.main
+            popoverLayout.update(for: presentationScreen)
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
             DispatchQueue.main.async { [weak self] in
-                self?.popover.contentViewController?.view.window?.makeFirstResponder(nil)
+                guard let self else { return }
+                self.constrainPopoverWindow(to: presentationScreen)
+                self.popover.contentViewController?.view.window?.makeFirstResponder(nil)
             }
+        }
+    }
+
+    private func constrainPopoverWindow(to preferredScreen: NSScreen?) {
+        guard let window = popover.contentViewController?.view.window,
+              let screen = preferredScreen ?? window.screen ?? NSScreen.main else { return }
+
+        let frame = window.frame
+        let visibleFrame = screen.visibleFrame
+        let origin = PopoverGeometry.clampedWindowOrigin(
+            originX: Double(frame.origin.x),
+            originY: Double(frame.origin.y),
+            windowWidth: Double(frame.width),
+            windowHeight: Double(frame.height),
+            visibleMinX: Double(visibleFrame.minX),
+            visibleMinY: Double(visibleFrame.minY),
+            visibleMaxX: Double(visibleFrame.maxX),
+            visibleMaxY: Double(visibleFrame.maxY)
+        )
+        let constrainedOrigin = NSPoint(x: origin.x, y: origin.y)
+
+        if constrainedOrigin != frame.origin {
+            window.setFrameOrigin(constrainedOrigin)
         }
     }
 
