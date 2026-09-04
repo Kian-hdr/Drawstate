@@ -8,6 +8,17 @@ Drawstate is a native, open-source macOS menu-bar utility for live power and bat
 
 Created and primarily developed by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
 
+## Set up with your AI agent
+
+**[Copy the setup prompt into your agent's chat](SETUP-PROMPT.md).** No placeholders
+need editing. Use an agent with access to your Mac; it will check compatibility,
+download and verify the installer, preserve existing settings, and guide any
+permissions or configuration you need to complete yourself.
+
+**Binary availability checked 2026-09-04:** no release binary or Homebrew cask
+is published yet. The prompt rechecks availability and offers the documented
+source-build route with your agreement if a binary is still unavailable.
+
 ## Highlights
 
 - Live signed wattage in the menu bar
