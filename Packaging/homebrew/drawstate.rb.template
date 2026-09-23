@@ -10,7 +10,7 @@ cask "drawstate" do
   desc "Live power and battery telemetry in the menu bar"
   homepage "https://github.com/Kian-hdr/Drawstate"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Drawstate.app"
 
