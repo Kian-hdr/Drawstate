@@ -15,9 +15,8 @@ need editing. Use an agent with access to your Mac; it will check compatibility,
 download and verify the installer, preserve existing settings, and guide any
 permissions or configuration you need to complete yourself.
 
-**Binary availability checked 2026-09-04:** no release binary or Homebrew cask
-is published yet. The prompt rechecks availability and offers the documented
-source-build route with your agreement if a binary is still unavailable.
+The setup prompt checks the latest published release and Homebrew cask before
+installation, and offers the documented source-build route when needed.
 
 ## Highlights
 
