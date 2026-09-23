@@ -9,4 +9,6 @@ Before opening an issue:
 
 Use the [Drawstate issue tracker](https://github.com/Kian-hdr/Drawstate/issues) and its bug-report template for reproducible problems. This is the official public support channel maintained by Drawstate's creator, Kian Konrad Tajbakhsh.
 
+For direct support, email [kian@tajbakhsh.dev](mailto:kian@tajbakhsh.dev).
+
 Include the Drawstate version, macOS version, Mac model, power source, expected result, and actual result. Do not upload full system logs unless a maintainer requests a specific excerpt. Never include passwords, authentication codes, or other sensitive information.
