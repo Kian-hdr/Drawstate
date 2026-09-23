@@ -16,7 +16,12 @@ final class DrawstateAppDelegate: NSObject, NSApplicationDelegate, NSWindowDeleg
     private var transientStartedAt = Date()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if ProcessInfo.processInfo.arguments.contains("--set-login-item-once=on") {
+            do { try LaunchAtLoginManager.setEnabled(true) }
+            catch { NSLog("Drawstate login item could not be enabled: %@", error.localizedDescription) }
+        }
         configureStatusItem()
+        DispatchQueue.main.async { [weak self] in self?.hidePlaceholderWindow() }
         NotificationCenter.default.publisher(for: .drawstateShowWelcome)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.showWelcomeWindow() }
@@ -32,6 +37,19 @@ final class DrawstateAppDelegate: NSObject, NSApplicationDelegate, NSWindowDeleg
             ProcessInfo.processInfo.arguments.contains("--show-welcome") {
             DispatchQueue.main.async { [weak self] in self?.showWelcomeWindow() }
         }
+    }
+
+    func applicationShouldRestoreApplicationState(_ app: NSApplication) -> Bool { false }
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    private func hidePlaceholderWindow() {
+        NSApp.windows.filter { $0.title == "Drawstate" }.forEach { $0.orderOut(nil) }
+    }
+
+    func showSettings() {
+        guard let button = menuBarButton else { return }
+        if !popover.isShown { togglePopover(button) }
+        NotificationCenter.default.post(name: .drawstateShowSettings, object: nil)
     }
 
     private func configureStatusItem() {

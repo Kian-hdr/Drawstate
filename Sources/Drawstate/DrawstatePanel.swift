@@ -38,6 +38,9 @@ struct DrawstatePanel: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .drawstateShowSettings)) { _ in
+            showingSettings = true
+        }
     }
 
     private var dashboard: some View {
