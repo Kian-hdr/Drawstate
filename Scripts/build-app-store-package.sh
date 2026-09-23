@@ -17,8 +17,10 @@ DRAWSTATE_OUTPUT_DIR="$release_root" \
   "$project_dir/Scripts/package-app.sh" release app-store
 
 app="$release_root/Drawstate-AppStore.app"
-package="$project_dir/build/Drawstate-AppStore-$version-$build_number.pkg"
-rm -f "$package"
+package_dir=${DRAWSTATE_APP_STORE_PACKAGE_DIR:-"$project_dir/build"}
+mkdir -p "$package_dir"
+package="$package_dir/Drawstate-AppStore-$version-$build_number.pkg"
+[[ ! -e "$package" ]] || { echo "Package already exists: $package" >&2; exit 73; }
 productbuild \
   --sign "$DRAWSTATE_APP_STORE_INSTALLER_IDENTITY" \
   --component "$app" /Applications \

@@ -30,10 +30,11 @@ final_app_dir="$output_dir/$app_name"
 # Assemble and sign outside Documents. File Provider can immediately attach
 # Finder metadata to bundles in Documents, which Developer ID signing rejects.
 staging_root=$(mktemp -d /private/tmp/drawstate-package.XXXXXX)
+scratch_root=$(mktemp -d /private/tmp/drawstate-swiftpm.XXXXXX)
 app_dir="$staging_root/$app_name"
-trap 'rm -rf "$staging_root"' EXIT
+trap 'rm -rf "$staging_root" "$scratch_root"' EXIT
 
-build_arguments=(--package-path "$project_dir" -c "$configuration")
+build_arguments=(--package-path "$project_dir" --scratch-path "$scratch_root" -c "$configuration")
 if [[ "$edition" == "app-store" ]]; then
   build_arguments+=(-Xswiftc -DAPP_STORE)
 fi
@@ -67,7 +68,7 @@ fi
 # appearances. Older Xcode versions cannot compile a .icon package, so public
 # source builds retain the transparent-corner ICNS artwork as a safe fallback.
 icon_build_dir=$(mktemp -d "$project_dir/build/icon-assets.XXXXXX")
-trap 'rm -rf "$icon_build_dir" "$staging_root"' EXIT
+trap 'rm -rf "$icon_build_dir" "$staging_root" "$scratch_root"' EXIT
 if xcrun actool "$project_dir/Resources/Drawstate.icon" \
   --compile "$icon_build_dir" \
   --platform macosx \

@@ -34,10 +34,10 @@ Keep signing material in Keychain and the provisioning profile outside the repos
 export DRAWSTATE_APP_STORE_SIGNING_IDENTITY='Apple Distribution: Kian Konrad Tajbakhsh (HZWY8HT54D)'
 export DRAWSTATE_APP_STORE_INSTALLER_IDENTITY='3rd Party Mac Developer Installer: Kian Konrad Tajbakhsh (HZWY8HT54D)'
 export DRAWSTATE_APP_STORE_PROVISIONING_PROFILE='/absolute/path/Drawstate_App_Store.provisionprofile'
-./Scripts/build-app-store-package.sh 1.0.1 2
+./Scripts/build-app-store-package.sh 1.0.2 3
 ```
 
-The script builds a universal `APP_STORE` application, embeds the provisioning profile, signs it with the sandbox entitlement, creates a signed installer package, and checks the package signature. It does not upload the package.
+The script builds a universal `APP_STORE` application, embeds the provisioning profile, signs it with the sandbox entitlement, creates a signed installer package, and checks the package signature. Set `DRAWSTATE_APP_STORE_PACKAGE_DIR` to place the package outside a synced source folder. It does not upload the package.
 
 Certificate display names can differ by account generation. Use `security find-identity -v -p codesigning` and Keychain Access to copy the exact installed identities.
 

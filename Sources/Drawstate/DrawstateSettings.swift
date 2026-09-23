@@ -105,7 +105,7 @@ struct DrawstateSettings: View {
 
             Section("Details Panel") {
 #if APP_STORE
-                Toggle("Energy mode and Drawstate Direct info", isOn: $showBatterySettingsCard)
+                Toggle("Energy mode and Battery Settings", isOn: $showBatterySettingsCard)
 #else
                 Toggle("Energy mode and charge limit", isOn: $showBatterySettingsCard)
 #endif
@@ -141,6 +141,7 @@ struct DrawstateSettings: View {
                 Text("Drawstate reads local power telemetry only. It does not use administrator access, networking, analytics, or powermetrics.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Link("Privacy Policy", destination: URL(string: "https://github.com/Kian-hdr/Drawstate/blob/main/PRIVACY.md")!)
             }
 
 #if !APP_STORE

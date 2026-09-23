@@ -5,8 +5,8 @@ project_dir=${0:A:h:h}
 validation_root=$(mktemp -d /private/tmp/drawstate-editions.XXXXXX)
 trap 'rm -rf "$validation_root"' EXIT
 
-swift test --package-path "$project_dir"
-swift test --package-path "$project_dir" -Xswiftc -DAPP_STORE
+swift test --package-path "$project_dir" --scratch-path "$validation_root/test-direct"
+swift test --package-path "$project_dir" --scratch-path "$validation_root/test-store" -Xswiftc -DAPP_STORE
 
 DRAWSTATE_OUTPUT_DIR="$validation_root/direct" \
   "$project_dir/Scripts/package-app.sh" release direct
@@ -60,9 +60,11 @@ done
 
 grep -Fq 'AppleSmartBattery' <<<"$store_strings"
 grep -Fq 'PowerTelemetryData' <<<"$store_strings"
-grep -Fq 'Charge-limit controls' <<<"$store_strings"
-grep -Fq 'Open installation guide' <<<"$store_strings"
 grep -Fq 'Open Battery Settings' <<<"$store_strings"
+if grep -Fq 'Available in Drawstate Direct' <<<"$store_strings"; then
+  echo "App Store binary contains the Direct-edition promotion" >&2
+  exit 1
+fi
 grep -Fq 'IOUSBHostDevice' <<<"$store_strings"
 grep -Fq 'Est. at Mac target' <<<"$store_strings"
 

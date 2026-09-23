@@ -21,7 +21,7 @@ The readings are estimates from macOS and battery telemetry, not calibrated wall
 
 ## Project and installation paths
 
-- Source: `/Users/kian/Documents/Codex/Drawstate`
+- Source: this repository root (`Raw/Drawstate` in the current Exlumina Vault)
 - Installed application: `/Applications/Drawstate.app`
 - Login item: `SMAppService.mainApp`, managed by macOS under Login Items
 - Bundle identifier: `com.kiankonradtajbakhsh.drawstate`
@@ -44,7 +44,7 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 | `Sources/Drawstate/LaunchAtLoginManager.swift` | Standard login-item registration, approval handling, and legacy LaunchAgent migration. |
 | `Sources/Drawstate/PowerMonitor.swift` | One-second telemetry sampling, smoothing, runtime-state handling, wake/source-change resets, and published UI state. |
 | `Sources/DrawstateCore/PowerSample.swift` | Typed raw and derived power sample model. Keep unavailable measurements distinct from numeric zero. |
-| `Sources/DrawstateCore/Telemetry.swift` | Public IOPowerSources parsing plus Direct-only AppleSmartBattery IOKit parsing. Hardware keys vary, so preserve graceful fallback behavior. |
+| `Sources/DrawstateCore/Telemetry.swift` | Public IOPowerSources parsing plus read-only AppleSmartBattery IOKit registry telemetry in both editions. Hardware keys vary, so preserve graceful fallback behavior and the Store review risk. |
 | `Sources/DrawstateCore/PowerEstimator.swift` | Derived power flow, runtime estimation, formatting, and smoothing logic. |
 | `Sources/DrawstateCore/PowerBankTelemetry.swift` | Typed external power-source model, UPS parsing, visibility, selection, and estimate logic. |
 | `Sources/DrawstateCore/PowerBankProviders.swift` | Public IOPowerSources/HID-UPS provider, USB identity enrichment, and future vendor protocol boundary. |
@@ -131,7 +131,7 @@ Do not restore `KeepAlive` relaunch behavior for public builds. Quitting must re
 
 ## Build, test, and package
 
-Run commands from `/Users/kian/Documents/Codex/Drawstate`.
+Run commands from this repository root.
 
 ```bash
 swift test
@@ -144,7 +144,7 @@ codesign --verify --deep --strict --verbose=2 build/Drawstate.app
 
 The Direct packaging path creates `build/Drawstate.app`. The Store path creates `build/Drawstate-AppStore.app`. Install the Direct app as `/Applications/Drawstate.app`, not in `/Users/kian/Applications` and not beside the source tree.
 
-The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no charge-limit writer, bridge, or `pmset` execution. The Store Battery Settings card keeps read-only telemetry and the System Settings shortcut. Its Drawstate Direct card may open the official README installation section, but must not download, install, execute, or replace software. Power-bank support must use documented IOPowerSources/USB interfaces and retain the `com.apple.security.device.usb` sandbox entitlement.
+The Store build must compile with `APP_STORE`, use `Resources/Drawstate-AppStore.entitlements`, and omit `ChargeLimitBridge.swift`. Never weaken this to a runtime toggle. It must contain no charge-limit writer, bridge, or `pmset` execution. The Store Battery Settings card keeps read-only telemetry and the System Settings shortcut; Settings links to the Privacy Policy. Do not add an alternate-edition installation route to the Store app. Power-bank support must use documented IOPowerSources/USB interfaces and retain the `com.apple.security.device.usb` sandbox entitlement.
 
 Do not push, publish, create an App Store record, upload, or submit for review without explicit user approval immediately before that external action.
 

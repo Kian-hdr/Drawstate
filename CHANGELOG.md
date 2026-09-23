@@ -2,10 +2,16 @@
 
 All notable changes will be documented here.
 
+## 1.0.2 - 2026-09-23
+
+- Added an in-app Privacy Policy link to the Mac App Store edition.
+- Kept the Store edition focused on read-only battery information and removed its alternate-edition installation page.
+- Prepared separate, controlled Mac App Store and direct-download release workflows.
+
 ## 1.0.1 - 2026-08-17
 
 - Added a separately sandboxed Mac App Store build using the `APP_STORE` compile condition.
-- Excluded undocumented charge-limit writing, its Swift bridge, AppleSmartBattery private telemetry, and `pmset` execution from the Store executable.
+- Excluded undocumented charge-limit writing, its Swift bridge, and `pmset` execution from the Store executable; retained read-only AppleSmartBattery IORegistry telemetry for power-flow display.
 - Added the Store Battery Settings shortcut, Drawstate Direct information card, edition validation, App Review notes, and Store signing and upload documentation.
 - Kept Drawstate Direct as the unchanged GitHub Releases and Homebrew edition with its experimental charge-limit controls.
 - Removed the duplicate primary-developer row from About so the creator credit appears once.

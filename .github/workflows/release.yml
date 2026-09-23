@@ -1,18 +1,29 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Existing release tag version (for example, 1.0.2)"
+        required: true
+        type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   notarized-release:
     runs-on: macos-15
     steps:
+      - name: Validate version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 64
       - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/v${{ inputs.version }}
+          persist-credentials: false
       - name: Import Developer ID certificate
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_P12 }}
@@ -36,30 +47,23 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-        run: ./Scripts/notarize-release.sh "${GITHUB_REF_NAME#v}"
-      - name: Publish GitHub release
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: ./Scripts/notarize-release.sh "$RELEASE_VERSION"
+      - name: Verify release checksums
         env:
-          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          gh release create "$GITHUB_REF_NAME" \
-            "build/Drawstate-$version.zip" \
-            "build/Drawstate-$version.zip.sha256" \
-            --verify-tag \
-            --generate-notes \
-            --title "Drawstate $version"
-      - name: Update Homebrew tap
-        env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          checksum="$(awk '{print $1}' "build/Drawstate-$version.zip.sha256")"
-          gh repo clone Kian-hdr/homebrew-drawstate "$RUNNER_TEMP/homebrew-drawstate"
-          mkdir -p "$RUNNER_TEMP/homebrew-drawstate/Casks"
-          ./Scripts/render-homebrew-cask.sh "$version" "$checksum" "$RUNNER_TEMP/homebrew-drawstate/Casks/drawstate.rb"
-          cd "$RUNNER_TEMP/homebrew-drawstate"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Casks/drawstate.rb
-          git commit -m "Update Drawstate to $version"
-          git push
+          cd build
+          shasum -a 256 -c "Drawstate-$RELEASE_VERSION.dmg.sha256"
+          shasum -a 256 -c "Drawstate-$RELEASE_VERSION.zip.sha256"
+      - name: Save review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: drawstate-direct-${{ inputs.version }}
+          path: |
+            build/Drawstate-${{ inputs.version }}.dmg
+            build/Drawstate-${{ inputs.version }}.dmg.sha256
+            build/Drawstate-${{ inputs.version }}.zip
+            build/Drawstate-${{ inputs.version }}.zip.sha256
+          if-no-files-found: error
+          retention-days: 14

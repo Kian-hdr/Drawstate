@@ -1,6 +1,6 @@
-# App Review Notes for 1.0.1 (Build 2)
+# App Review Notes for 1.0.2 (Build 3)
 
-These notes describe the Mac App Store binary for version 1.0.1, build 2.
+These notes describe the Mac App Store binary for version 1.0.2, build 3.
 
 ## App behavior
 
@@ -16,7 +16,7 @@ This Mac App Store binary is compiled with `APP_STORE`. It reads properties from
 
 The compact Battery Settings card shows the current energy mode. **Open Battery Settings** opens the system Battery settings pane. It does not present a disabled or simulated charge-limit control.
 
-The card's **Charge-limit controls** row opens an in-app informational page describing Drawstate Direct's GitHub Releases and Homebrew options. Clicking the displayed Homebrew command only copies that text to the pasteboard. Its single **Open installation guide…** button opens the public repository's installation documentation in the default browser. It does not download or execute software, invoke Homebrew, present an installer, or replace the App Store application.
+The Store app has no charge-limit or alternate-installation controls. Settings includes a Privacy Policy link that opens the public policy in the default browser.
 
 ## Review checklist
 
@@ -25,5 +25,5 @@ The card's **Charge-limit controls** row opens an in-app informational page desc
 - Confirm the charge-limit bridge and all charge-limit writing symbols are absent from the executable.
 - Test the menu-bar popover on battery and while connected to a charger.
 - If available, connect a standards-compliant USB HID/UPS device and confirm the conditional Power Bank card. With no compatible device, confirm the overview is unchanged.
-- Test the Battery Settings deep link and the documentation link.
+- Test the Battery Settings deep link and Privacy Policy link.
 - Explain any telemetry shown as `—` on the review Mac as hardware availability, not an app failure.
