@@ -75,10 +75,11 @@ Drawstate contains no objectionable content, user-generated content, messaging, 
 
 ## Screenshots
 
-Use only the sandboxed `APP_STORE` build and an accepted 16:10 Mac screenshot size. Do not show Drawstate Direct controls or private user information.
+Use only the sandboxed `APP_STORE` UI and an accepted 16:10 Mac screenshot size. Do not show Drawstate Direct controls or private user information.
 
-1. Charging overview
-2. Battery runtime overview
-3. Embedded appearance and menu-bar settings
-4. Compact Battery Settings card
-5. About and acknowledgments
+Uploaded to App Store Connect on 2026-09-23:
+
+- `AppStore/Screenshots/02-customize.png`: real Store Settings window, menu-bar and appearance controls, on a neutral 1440 × 900 canvas.
+- `AppStore/Screenshots/03-privacy.png`: real Store Settings window, details and privacy controls, on a neutral 1440 × 900 canvas.
+
+Both use local captures of the 1.0.2 (3) Store package payload, re-signed only for sandboxed runtime QA. Add a primary live menu-bar overview capture if the status-item popover can be captured; that is the app's main user workflow. Keep hardware-dependent values truthful and do not substitute Direct-edition controls.
