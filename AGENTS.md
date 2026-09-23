@@ -36,7 +36,7 @@ Do not reintroduce former product names or legacy identifiers in source, documen
 | `Sources/Drawstate/DrawstateMain.swift` | SwiftUI app entry point and login-item configuration bootstrap. |
 | `Sources/Drawstate/DrawstateAppDelegate.swift` | Native status-item lifecycle, popover coordination, menu content, and welcome-window presentation. |
 | `Sources/Drawstate/DrawstatePanel.swift` | Live telemetry dashboard, power-flow cards, and charge-limit controls. |
-| `Sources/Drawstate/DrawstateSettings.swift` | Embedded and standalone settings UI, About information, and acknowledgments. |
+| `Sources/Drawstate/DrawstateSettings.swift` | Embedded settings UI, About information, and acknowledgments. |
 | `Sources/Drawstate/DrawstateMenuIconFactory.swift` | Level-aware percentage-inside battery icon rendering and appearance cache. |
 | `Sources/Drawstate/DrawstatePopoverLayout.swift` | Screen-aware popover sizing. |
 | `Sources/Drawstate/DrawstateCredits.swift` | Canonical in-app creator and acknowledgment wording. |

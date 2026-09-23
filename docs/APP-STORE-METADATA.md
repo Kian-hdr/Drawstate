@@ -77,9 +77,9 @@ Drawstate contains no objectionable content, user-generated content, messaging, 
 
 Use only the sandboxed `APP_STORE` UI and an accepted 16:10 Mac screenshot size. Do not show Drawstate Direct controls or private user information.
 
-Uploaded to App Store Connect on 2026-09-23:
+Captured from the Store QA app's separate macOS Settings window on 2026-09-23, then removed from App Store Connect after Kian pointed out that this window looks different from Settings embedded inside Drawstate's menu-bar popover:
 
 - `AppStore/Screenshots/02-customize.png`: real Store Settings window, menu-bar and appearance controls, on a neutral 1440 × 900 canvas.
 - `AppStore/Screenshots/03-privacy.png`: real Store Settings window, details and privacy controls, on a neutral 1440 × 900 canvas.
 
-Both use local captures of the 1.0.2 (3) Store package payload, re-signed only for sandboxed runtime QA. Add a primary live menu-bar overview capture if the status-item popover can be captured; that is the app's main user workflow. Keep hardware-dependent values truthful and do not substitute Direct-edition controls.
+Both use local captures of the 1.0.2 (3) Store package payload, re-signed only for sandboxed runtime QA. App Store Connect currently has no screenshots. The current Direct and Store app bundles both report version 1.0.2 (3); the visual discrepancy came from capturing `DrawstateSettings()` in its standalone scene instead of `DrawstateSettings(isEmbedded: true)` inside the panel. Capture and upload the live Store-edition menu-bar panel and its embedded Settings view. Keep hardware-dependent values truthful and do not substitute Direct-edition controls, especially its charge-limit display and slider.

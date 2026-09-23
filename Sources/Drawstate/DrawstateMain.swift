@@ -13,8 +13,14 @@ struct DrawstateApp: App {
     }
 
     var body: some Scene {
-        Settings {
-            DrawstateSettings()
+        Window("Drawstate", id: "menu-bar-placeholder") { EmptyView() }
+            .commands { settingsCommand }
+    }
+
+    @CommandsBuilder private var settingsCommand: some Commands {
+        CommandGroup(replacing: .appSettings) {
+            Button("Settings…") { appDelegate.showSettings() }
+                .keyboardShortcut(",", modifiers: .command)
         }
     }
 }
