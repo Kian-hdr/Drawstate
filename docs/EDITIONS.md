@@ -24,7 +24,7 @@ The Mac App Store build passes `-DAPP_STORE` to Swift. Both editions use the sam
 - `pmset` process execution and charge-limit parsing at runtime
 - Direct's legacy LaunchAgent migration and `launchctl` process execution
 
-The App Store app includes a compact Drawstate Direct row inside Battery Settings. It opens an in-app explanation of the GitHub Releases and Homebrew options. The Homebrew command can be copied to the clipboard, and the page's single external action opens the official [README installation section](https://github.com/Kian-hdr/Drawstate#install). It does not download, install, execute, or replace software.
+The App Store app keeps a compact, read-only Battery Settings card and an **Open Battery Settings** shortcut. It does not promote or install the separate Direct edition inside the app. Settings includes an accessible Privacy Policy link.
 
 ## Store telemetry boundary
 

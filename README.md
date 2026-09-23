@@ -48,7 +48,7 @@ The downloadable edition is **Drawstate Direct**. It preserves every Drawstate f
 
 ### Drawstate Direct from GitHub Releases
 
-Download the latest notarized `Drawstate-VERSION.zip` from [GitHub Releases](https://github.com/Kian-hdr/Drawstate/releases), unzip it, and move `Drawstate.app` to Applications.
+Download the latest notarized `Drawstate-VERSION.dmg` from [GitHub Releases](https://github.com/Kian-hdr/Drawstate/releases), open it, and drag `Drawstate.app` to Applications.
 
 Public binaries are published only after Developer ID signing and Apple notarization. If the Releases page has no binary yet, build from source instead of downloading an unsigned copy from another source.
 
@@ -100,7 +100,7 @@ Most power banks expose power delivery but do not expose battery telemetry to ma
 
 Drawstate Direct displays and can optionally change the system charge limit through an experimental on-device control under **Settings > Experimental**. It uses an undocumented macOS Smart Charge service, verifies every write, and may stop working after an OS update.
 
-The Mac App Store edition is sandboxed and preserves Drawstate's read-only live wattage and power-flow telemetry, but contains no undocumented charge-limit writer, Swift bridge, or experimental control. Its compact Battery Settings card shows the current energy mode and provides **Open Battery Settings**. A small **Charge-limit controls** row opens an in-app explanation of the GitHub Releases and Homebrew installation options for Drawstate Direct. The Homebrew row copies the displayed command to the clipboard when clicked, and one link opens this installation section. It never downloads software, runs Homebrew, or replaces the current app.
+The Mac App Store edition is sandboxed and preserves Drawstate's read-only live wattage and power-flow telemetry, but contains no undocumented charge-limit writer, Swift bridge, or experimental control. Its compact Battery Settings card shows the current energy mode and provides **Open Battery Settings**. Its Settings view links to the Privacy Policy.
 
 See [Drawstate editions](docs/EDITIONS.md) for the complete comparison.
 

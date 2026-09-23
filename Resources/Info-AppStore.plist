@@ -7,7 +7,7 @@
     <key>CFBundleExecutable</key>
     <string>Drawstate</string>
     <key>CFBundleGetInfoString</key>
-    <string>Drawstate 1.0.1 Mac App Store edition, created by Kian Konrad Tajbakhsh. Open source under the MIT License.</string>
+    <string>Drawstate 1.0.2 Mac App Store edition, created by Kian Konrad Tajbakhsh. Open source under the MIT License.</string>
     <key>CFBundleIconFile</key>
     <string>Drawstate</string>
     <key>CFBundleIconName</key>
@@ -21,9 +21,9 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.1</string>
+    <string>1.0.2</string>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>3</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>LSApplicationCategoryType</key>

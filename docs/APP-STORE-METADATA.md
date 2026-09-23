@@ -1,6 +1,6 @@
 # Mac App Store Metadata
 
-This file is the canonical listing source for Drawstate 1.0.1, build 2. Review live App Store Connect fields against it before submission.
+This file is the canonical listing source for Drawstate 1.0.2, build 3. Review live App Store Connect fields against it before submission.
 
 ## Identity
 
@@ -9,8 +9,8 @@ This file is the canonical listing source for Drawstate 1.0.1, build 2. Review l
 - Primary language: English (U.S.)
 - Bundle ID: `com.kiankonradtajbakhsh.drawstate.appstore`
 - SKU: `drawstate-macos-001`
-- Version: 1.0.1
-- Build: 2
+- Version: 1.0.2
+- Build: 3
 - Primary category: Utilities
 - Secondary category: None
 - Copyright: 2026 Kian Konrad Tajbakhsh
@@ -38,7 +38,7 @@ Choose exactly what appears in the menu bar, switch between battery icon styles,
 
 Compatible USB HID/UPS power banks appear automatically in a compact conditional card with their reported remaining charge, state, electrical output, and runtime. Unsupported devices leave the interface unchanged. Calculated values are clearly labeled as estimates.
 
-The Mac App Store edition is sandboxed and uses IOPowerSources plus read-only IOKit telemetry for live wattage and power flow. Compatible external sources use documented IOPowerSources and USB descriptor APIs under the USB sandbox entitlement. It does not include Drawstate Direct's experimental charge-limit controls. Its compact Battery Settings card links to an in-app explanation of the GitHub Releases and Homebrew options. Clicking the displayed Homebrew command copies it to the clipboard; the page's only external action opens the official installation documentation. It does not download, install, execute, or replace software.
+The Mac App Store edition is sandboxed and uses IOPowerSources plus read-only IOKit telemetry for live wattage and power flow. Compatible external sources use documented IOPowerSources and USB descriptor APIs under the USB sandbox entitlement. It does not include experimental charge-limit controls. Its compact Battery Settings card shows the current energy mode and opens macOS Battery Settings. The app links to its Privacy Policy from Settings.
 
 Drawstate works locally with no account, analytics, advertising, cloud service, or tracking.
 
@@ -70,7 +70,7 @@ Drawstate contains no objectionable content, user-generated content, messaging, 
 - Availability: All territories where Apple permits distribution, subject to completed legal and trader-status requirements
 - Pre-orders: No
 - Mac App Store edition: sandboxed build using IOPowerSources and disclosed read-only IOKit registry telemetry
-- Drawstate Direct link: informational link to https://github.com/Kian-hdr/Drawstate#install
+- No alternate-edition installation link in the Store app
 - Platform and availability: macOS only; do not add iOS, iPadOS, tvOS, watchOS, or visionOS versions
 
 ## Screenshots
@@ -80,5 +80,5 @@ Use only the sandboxed `APP_STORE` build and an accepted 16:10 Mac screenshot si
 1. Charging overview
 2. Battery runtime overview
 3. Embedded appearance and menu-bar settings
-4. Compact Battery Settings card and Drawstate Direct information page
+4. Compact Battery Settings card
 5. About and acknowledgments
