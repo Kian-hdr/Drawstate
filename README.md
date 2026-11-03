@@ -6,6 +6,12 @@
 
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
 
+<!-- direct-downloads -->
+[![Download macOS DMG](https://img.shields.io/badge/Download%20macOS%20DMG-24292F?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg) [![Install with Homebrew](https://img.shields.io/badge/Install%20with%20Homebrew-8A4B20?style=for-the-badge&logo=homebrew&logoColor=white)](#install)
+
+[Download macOS DMG](https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg) · [Homebrew instructions](#install) · [Release v1.0.5](https://github.com/Kian-hdr/Drawstate/releases/tag/v1.0.5)
+<!-- /direct-downloads -->
+
 Created and primarily developed by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
 
 ## Set up with your AI agent
