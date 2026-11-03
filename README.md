@@ -14,19 +14,11 @@
 
 <p align="center"><a href="#install">Install with Homebrew</a> · <a href="https://github.com/Kian-hdr/Drawstate/releases/tag/v1.0.5">Release notes</a></p>
 
+<p align="center"><img src="AppStore/Screenshots/02-customize.png" width="720" alt="Drawstate settings for the battery icon, live wattage, and time remaining"></p>
+
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
 
 Created and primarily developed by **Kian Konrad Tajbakhsh** and released under the [MIT License](LICENSE).
-
-## Set up with your AI agent
-
-**[Copy the setup prompt into your agent's chat](SETUP-PROMPT.md).** No placeholders
-need editing. Use an agent with access to your Mac; it will check compatibility,
-download and verify the installer, preserve existing settings, and guide any
-permissions or configuration you need to complete yourself.
-
-The setup prompt checks the latest published release and Homebrew cask before
-installation, and offers the documented source-build route when needed.
 
 ## Highlights
 
@@ -116,6 +108,16 @@ See [Drawstate editions](docs/EDITIONS.md) for the complete comparison.
 ## Privacy
 
 All processing stays on the Mac. Drawstate does not collect or transmit data. Read the full [privacy statement](PRIVACY.md) and bundled privacy manifest.
+
+## Set up with your AI agent
+
+**[Copy the setup prompt into your agent's chat](SETUP-PROMPT.md).** No placeholders
+need editing. Use an agent with access to your Mac; it will check compatibility,
+download and verify the installer, preserve existing settings, and guide any
+permissions or configuration you need to complete yourself.
+
+The setup prompt checks the latest published release and Homebrew cask before
+installation, and offers the documented source-build route when needed.
 
 ## Documentation
 
