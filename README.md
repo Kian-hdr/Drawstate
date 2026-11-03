@@ -2,7 +2,7 @@
 
 <p align="center">Live power and battery telemetry in your Mac’s menu bar.</p>
 
-<p align="center"><img src="Resources/AppIconAppearances/AppIcon-Dark-1024.png" width="72" alt="Drawstate macOS app icon"></p>
+<p align="center"><img src="Resources/AppIconAppearances/AppIcon-Dark-1024.png" width="96" alt="Drawstate macOS app icon"></p>
 
 <h2 align="center">Download</h2>
 
