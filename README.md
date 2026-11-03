@@ -1,18 +1,18 @@
-# Drawstate
+<h1 align="center">Drawstate</h1>
 
-Live power and battery telemetry in your Mac’s menu bar.
+<p align="center">Live power and battery telemetry in your Mac’s menu bar.</p>
 
-<img src="https://github.com/user-attachments/assets/4fd0b55c-ab04-483e-9b6a-0fd384c50d7e" alt="Drawstate app icon" width="72">
+<p align="center"><img src="https://github.com/user-attachments/assets/4fd0b55c-ab04-483e-9b6a-0fd384c50d7e" alt="Drawstate app icon" width="72"></p>
 
-## Download
+<h2 align="center">Download</h2>
 
-<p>
+<p align="center">
 <a href="https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg"><img src="docs/assets/downloads/download_1.svg" width="240" height="48" alt="Download for macOS"></a>
 </p>
 
-[DMG · v1.0.5 · macOS 14 or later](https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg)
+<p align="center"><a href="https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg">DMG · v1.0.5 · macOS 14 or later</a></p>
 
-[Install with Homebrew](#install) · [Release notes](https://github.com/Kian-hdr/Drawstate/releases/tag/v1.0.5)
+<p align="center"><a href="#install">Install with Homebrew</a> · <a href="https://github.com/Kian-hdr/Drawstate/releases/tag/v1.0.5">Release notes</a></p>
 
 Drawstate is a native, open-source macOS menu-bar utility for live power and battery telemetry. It shows how much power your Mac is receiving or consuming, battery percentage, power flow, and estimated time until full or empty.
 
