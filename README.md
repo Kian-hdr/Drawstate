@@ -7,7 +7,13 @@
 
 <p align="center">Live power and battery telemetry in your Mac’s menu bar.</p>
 
-<p align="center"><img src="Resources/AppIconAppearances/AppIcon-Dark-1024.png" width="96" alt="Drawstate macOS app icon"></p>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Resources/AppIconAppearances/AppIcon-Dark-1024.png">
+    <source media="(prefers-color-scheme: light)" srcset="Resources/AppIconAppearances/AppIcon-Light-1024.png">
+    <img src="Resources/AppIconAppearances/AppIcon-Light-1024.png" width="96" alt="Drawstate macOS app icon">
+  </picture>
+</p>
 
 <p align="center">
 <a href="https://github.com/Kian-hdr/Drawstate/releases/download/v1.0.5/Drawstate-1.0.5.dmg"><img src="docs/assets/downloads/download_1.svg" width="240" height="48" alt="Download for macOS"></a>
